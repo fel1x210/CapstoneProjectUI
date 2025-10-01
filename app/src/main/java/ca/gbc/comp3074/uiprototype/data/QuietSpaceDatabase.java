@@ -33,13 +33,14 @@ public abstract class QuietSpaceDatabase extends RoomDatabase {
                                 @Override
                                 public void onCreate(@NonNull SupportSQLiteDatabase db) {
                                     super.onCreate(db);
-                                    databaseWriteExecutor.execute(() -> {
-                                        if (INSTANCE != null) {
-                                            PlaceDao dao = INSTANCE.placeDao();
-                                            dao.clear();
-                                            dao.insertAll(SampleData.getPlaces());
-                                        }
-                                    });
+                                    populateSampleData();
+                                }
+
+                                @Override
+                                public void onOpen(@NonNull SupportSQLiteDatabase db) {
+                                    super.onOpen(db);
+                                    // Always populate sample data on open to ensure data is present
+                                    populateSampleData();
                                 }
                             })
                             .build();
@@ -47,5 +48,15 @@ public abstract class QuietSpaceDatabase extends RoomDatabase {
             }
         }
         return INSTANCE;
+    }
+
+    private static void populateSampleData() {
+        databaseWriteExecutor.execute(() -> {
+            if (INSTANCE != null) {
+                PlaceDao dao = INSTANCE.placeDao();
+                dao.clear();
+                dao.insertAll(SampleData.getPlaces());
+            }
+        });
     }
 }

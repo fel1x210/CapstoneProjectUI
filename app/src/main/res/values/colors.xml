@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="quiet_space_primary">#6DB4B4</color>
+    <color name="quiet_space_background">#F0F0F0</color>
+    <color name="quiet_space_surface">#FFFFFFFF</color>
+    <color name="quiet_space_surface_variant">#F0F0F0</color>
+    <color name="quiet_space_text_primary">#333333</color>
+    <color name="quiet_space_text_secondary">#666666</color>
+    <color name="quiet_space_text_muted">#999999</color>
+    <color name="quiet_space_chip_inactive">#F5F5F5</color>
+    <color name="quiet_space_chip_active">#6DB4B4</color>
+    <color name="quiet_space_warning">#FF6B6B</color>
+    <color name="quiet_space_gradient_start">#0F1D2E</color>
+    <color name="quiet_space_gradient_center">#173A4F</color>
+    <color name="quiet_space_gradient_end">#2E6B72</color>
+    <color name="quiet_space_orb_teal">#A4E2E0</color>
+    <color name="quiet_space_orb_lilac">#C6C5EB</color>
+    <color name="quiet_space_placeholder">#F8F4F0</color>
+    <color name="quiet_space_surface_alt">#F5F5F5</color>
+    <color name="quiet_space_border">#DDDDDD</color>
+    <color name="quiet_space_search_surface">#F8F8F8</color>
+    <color name="quiet_space_map_placeholder">#E8E8E8</color>
+</resources>

@@ -27,7 +27,7 @@ public class WelcomeActivity extends AppCompatActivity {
     private TextView textFooter;
     private MaterialButton buttonSignUp;
     private MaterialButton buttonLogin;
-    private TextView textGuest;
+    private MaterialButton buttonGuest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,9 +47,9 @@ public class WelcomeActivity extends AppCompatActivity {
         textFooter = findViewById(R.id.textFooter);
         buttonSignUp = findViewById(R.id.buttonSignUp);
         buttonLogin = findViewById(R.id.buttonLogin);
-        textGuest = findViewById(R.id.textGuest);
+        buttonGuest = findViewById(R.id.buttonGuest);
 
-        textGuest.setPaintFlags(textGuest.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+        buttonGuest.setPaintFlags(buttonGuest.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
     }
 
     private void setupInteractions() {
@@ -63,7 +63,7 @@ public class WelcomeActivity extends AppCompatActivity {
             startActivity(intent);
         }));
 
-        textGuest.setOnClickListener(v -> playButtonPressAnimation(textGuest, () -> {
+        buttonGuest.setOnClickListener(v -> playButtonPressAnimation(buttonGuest, () -> {
             Intent intent = new Intent(WelcomeActivity.this, MainActivity.class);
             startActivity(intent);
         }));

@@ -49,7 +49,7 @@ public class SearchFragment extends Fragment {
             new Category("💡", "Creative labs"));
 
     private EditText inputSearch;
-    private MaterialButton buttonSearch;
+    private TextView searchIcon;
     private LinearLayout recentList;
     private GridLayout categoriesGrid;
     private LinearLayout resultsSection;
@@ -72,14 +72,19 @@ public class SearchFragment extends Fragment {
         populateRecentSearches();
         populateCategories();
         setupInteractions();
+
+        // Load dummy data immediately as fallback
+        loadDummyData();
+
+        // Setup ViewModel to observe database changes
         setupViewModel();
-        showFeaturedPlaces();
+
         animateEntrance(view);
     }
 
     private void bindViews(View view) {
         inputSearch = view.findViewById(R.id.inputSearch);
-        buttonSearch = view.findViewById(R.id.buttonSearch);
+        searchIcon = view.findViewById(R.id.searchIcon);
         recentList = view.findViewById(R.id.recentList);
         categoriesGrid = view.findViewById(R.id.categoriesGrid);
         resultsSection = view.findViewById(R.id.resultsSection);
@@ -117,7 +122,7 @@ public class SearchFragment extends Fragment {
     }
 
     private void setupInteractions() {
-        buttonSearch.setOnClickListener(
+        searchIcon.setOnClickListener(
                 v -> performSearch(inputSearch.getText() != null ? inputSearch.getText().toString() : ""));
 
         inputSearch.setOnEditorActionListener((v, actionId, event) -> {
@@ -134,7 +139,12 @@ public class SearchFragment extends Fragment {
     private void setupViewModel() {
         viewModel = new ViewModelProvider(this).get(SearchViewModel.class);
         viewModel.getAllPlaces().observe(getViewLifecycleOwner(), placeEntities -> {
-            updatePlaces(placeEntities);
+            // Update places from database when available
+            if (placeEntities != null && !placeEntities.isEmpty()) {
+                updatePlaces(placeEntities);
+            }
+            // Always show featured places or search results based on current state
+            // This ensures dummy data is shown if database is empty
             if (TextUtils.isEmpty(currentQuery)) {
                 showFeaturedPlaces();
             } else {
@@ -250,6 +260,30 @@ public class SearchFragment extends Fragment {
         return filtered;
     }
 
+    private void loadDummyData() {
+        places.clear();
+        places.add(new Place("The Urban Reader Café", "Café", "0.2 miles", 4.7f, 362,
+                Arrays.asList("Quiet corners", "WiFi", "Specialty brews")));
+        places.add(new Place("Central Library", "Library", "0.5 miles", 4.8f, 128,
+                Arrays.asList("Study rooms", "Very quiet", "Research help")));
+        places.add(new Place("Peaceful Corner Coworking", "Coworking", "0.8 miles", 4.8f, 89,
+                Arrays.asList("Professional", "Outlets", "Meeting rooms")));
+        places.add(new Place("Sunset Study Lounge", "Lounge", "1.2 miles", 4.6f, 54,
+                Arrays.asList("Sunset view", "Soft seating", "Snacks")));
+        places.add(new Place("Aurora Reading Atrium", "Library", "1.5 miles", 4.9f, 204,
+                Arrays.asList("Natural light", "Quiet zones", "Coffee bar")));
+        places.add(new Place("Focus Hub Midtown", "Coworking", "2.0 miles", 4.4f, 178,
+                Arrays.asList("24/7 access", "Phone booths", "Events")));
+        places.add(new Place("Greenhouse Courtyard", "Garden", "2.3 miles", 4.3f, 96,
+                Arrays.asList("Fresh air", "Shade", "Birdsong")));
+        places.add(new Place("Midnight Study Café", "Café", "0.9 miles", 4.5f, 147,
+                Arrays.asList("Late hours", "Cozy", "Music")));
+        places.add(new Place("Riverside Writing Deck", "Outdoor", "3.3 miles", 4.2f, 63,
+                Arrays.asList("River breeze", "Shade", "Picnic tables")));
+        places.add(new Place("Innovation Loft", "Coworking", "1.9 miles", 4.6f, 112,
+                Arrays.asList("Workshops", "Fast WiFi", "Community")));
+    }
+
     private void updatePlaces(List<PlaceEntity> placeEntities) {
         places.clear();
         if (placeEntities == null) {
@@ -289,6 +323,14 @@ public class SearchFragment extends Fragment {
 
             if (scroll instanceof androidx.core.widget.NestedScrollView) {
                 androidx.core.widget.NestedScrollView nsv = (androidx.core.widget.NestedScrollView) scroll;
+				// Ensure the scroll view itself fades/translates in
+				scroll.animate()
+						.alpha(1f)
+						.translationY(0f)
+						.setStartDelay(200)
+						.setDuration(550)
+						.setInterpolator(new DecelerateInterpolator())
+						.start();
                 if (nsv.getChildCount() > 0) {
                     View content = nsv.getChildAt(0);
                     content.animate()

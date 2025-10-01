@@ -10,7 +10,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="@color/white"
+    android:background="@color/white"
         android:padding="20dp"
         android:elevation="4dp"
         android:alpha="0"
@@ -212,7 +212,6 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/buttonExplore"
-                    style="@style/Widget.Material3.Button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/favorites_explore"

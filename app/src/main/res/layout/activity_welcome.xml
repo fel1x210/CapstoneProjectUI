@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/quiet_space_surface_variant">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardContainer"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:alpha="0"
+        android:translationY="32dp"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:padding="30dp">
+
+            <LinearLayout
+                android:id="@+id/headerGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:alpha="0"
+                android:translationY="24dp"
+                android:gravity="center_horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/welcome_headline"
+                    android:textColor="@color/quiet_space_text_primary"
+                    android:textSize="28sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="@string/app_tagline"
+                    android:textColor="@color/quiet_space_text_primary"
+                    android:textSize="22sp"
+                    android:fontFamily="sans-serif-medium" />
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/illustrationGroup"
+                android:layout_width="200dp"
+                android:layout_height="150dp"
+                android:layout_marginTop="40dp"
+                android:layout_gravity="center_horizontal"
+                android:alpha="0"
+                android:background="@drawable/bg_soft_card"
+                android:contentDescription="@string/welcome_headline"
+                android:scaleType="centerCrop" />
+
+            <LinearLayout
+                android:id="@+id/buttonGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="40dp"
+                android:orientation="vertical"
+                android:alpha="0"
+                android:translationY="24dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/buttonSignUp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="15dp"
+                    android:text="@string/action_sign_up"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white"
+                    android:textSize="18sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:backgroundTint="@color/quiet_space_primary"
+                    app:cornerRadius="12dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/buttonLogin"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="0dp"
+                    android:text="@string/action_log_in"
+                    android:textAllCaps="false"
+                    android:textColor="@color/quiet_space_primary"
+                    android:backgroundTint="@android:color/transparent"
+                    android:textSize="18sp"
+                    android:fontFamily="sans-serif-medium"
+                    app:strokeColor="@color/quiet_space_primary"
+                    app:strokeWidth="1dp"
+                    app:cornerRadius="12dp" />
+            </LinearLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonGuest"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/action_continue_as_guest"
+                android:textAllCaps="false"
+                android:textColor="@color/quiet_space_text_secondary"
+                android:textSize="16sp"
+                android:fontFamily="sans-serif"
+                app:iconGravity="textStart" />
+
+            <TextView
+                android:id="@+id/textFooter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:alpha="0"
+                android:text="@string/welcome_subtitle"
+                android:textColor="@color/quiet_space_text_muted"
+                android:textSize="14sp"
+                android:textAlignment="center" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
