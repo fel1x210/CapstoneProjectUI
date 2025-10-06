@@ -201,49 +201,13 @@
 
             <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@color/quiet_space_map_placeholder">
+                android:layout_height="match_parent">
 
-                <LinearLayout
+                <fragment
+                    android:id="@+id/mapFragment"
+                    android:name="com.google.android.gms.maps.SupportMapFragment"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="🗺️"
-                        android:textSize="56sp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:text="Interactive Map"
-                        android:textColor="@color/quiet_space_text_secondary"
-                        android:textSize="18sp"
-                        android:fontFamily="sans-serif-medium" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:layout_gravity="center"
-                    android:background="@color/quiet_space_primary"
-                    android:elevation="5dp"
-                    android:gravity="center"
-                    android:orientation="vertical"
-                    android:translationY="-40dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="📍"
-                        android:textColor="@android:color/white"
-                        android:textSize="16sp" />
-                </LinearLayout>
+                    android:layout_height="match_parent" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/buttonAddSpot"

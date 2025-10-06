@@ -12,7 +12,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Database(entities = { PlaceEntity.class }, version = 1, exportSchema = false)
+@Database(entities = { PlaceEntity.class }, version = 2, exportSchema = false)
 @TypeConverters({ Converters.class })
 public abstract class QuietSpaceDatabase extends RoomDatabase {
 

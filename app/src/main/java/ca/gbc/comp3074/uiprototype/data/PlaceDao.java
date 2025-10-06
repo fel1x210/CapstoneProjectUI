@@ -14,6 +14,9 @@ public interface PlaceDao {
     @Query("SELECT * FROM places ORDER BY rating DESC")
     LiveData<List<PlaceEntity>> getAllPlaces();
 
+    @Query("SELECT * FROM places ORDER BY rating DESC")
+    List<PlaceEntity> getAllPlacesSync();
+
     @Query("SELECT * FROM places WHERE favorite = 1 ORDER BY rating DESC")
     LiveData<List<PlaceEntity>> getFavoritePlaces();
 

@@ -38,6 +38,14 @@ public class PlaceEntity {
     @NonNull
     public List<String> tags;
 
+    public double latitude;
+    public double longitude;
+    public String address;
+    public String description;
+    public String phoneNumber;
+    public String website;
+    public String openingHours;
+
     public PlaceEntity(@NonNull String name,
             @NonNull String type,
             @NonNull String distance,
@@ -47,7 +55,14 @@ public class PlaceEntity {
             int checkins,
             @NonNull String lastVisited,
             @NonNull String emoji,
-            @NonNull List<String> tags) {
+            @NonNull List<String> tags,
+            double latitude,
+            double longitude,
+            String address,
+            String description,
+            String phoneNumber,
+            String website,
+            String openingHours) {
         this.name = name;
         this.type = type;
         this.distance = distance;
@@ -58,5 +73,12 @@ public class PlaceEntity {
         this.lastVisited = lastVisited;
         this.emoji = emoji;
         this.tags = tags;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.address = address;
+        this.description = description;
+        this.phoneNumber = phoneNumber;
+        this.website = website;
+        this.openingHours = openingHours;
     }
 }
