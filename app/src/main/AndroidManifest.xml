@@ -43,6 +43,12 @@
                 android:name=".ui.main.MainActivity"
                 android:exported="false" />
 
+        <!-- Place Details Activity -->
+        <activity
+                android:name=".ui.details.PlaceDetailsActivity"
+                android:exported="false"
+                android:parentActivityName=".ui.main.MainActivity" />
+
         <!-- Google Maps API -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"

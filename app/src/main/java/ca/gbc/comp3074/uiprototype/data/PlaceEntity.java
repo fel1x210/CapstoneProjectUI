@@ -2,8 +2,10 @@ package ca.gbc.comp3074.uiprototype.data;
 
 import androidx.annotation.NonNull;
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity(tableName = "places")
@@ -45,7 +47,26 @@ public class PlaceEntity {
     public String phoneNumber;
     public String website;
     public String openingHours;
+    
+    // Additional fields for Google Places integration
+    public String googlePlaceId;
+    public String priceLevel;
+    public boolean isOpen;
+    public float quietScore;
+    public String photoReference;
+    public String reviews;
 
+    // Default constructor for Room
+    public PlaceEntity() {
+        this.name = "";
+        this.type = "";
+        this.distance = "";
+        this.lastVisited = "";
+        this.emoji = "";
+        this.tags = new ArrayList<>();
+    }
+
+    @Ignore
     public PlaceEntity(@NonNull String name,
             @NonNull String type,
             @NonNull String distance,
@@ -80,5 +101,13 @@ public class PlaceEntity {
         this.phoneNumber = phoneNumber;
         this.website = website;
         this.openingHours = openingHours;
+        
+        // Initialize new fields with defaults
+        this.googlePlaceId = "";
+        this.priceLevel = "";
+        this.isOpen = true;
+        this.quietScore = 3.0f;
+        this.photoReference = "";
+        this.reviews = "";
     }
 }

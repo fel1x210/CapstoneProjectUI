@@ -47,7 +47,6 @@ public class LoginActivity extends AppCompatActivity {
 
     private void initViews() {
         cardLogin = findViewById(R.id.cardLogin);
-        loginIllustration = findViewById(R.id.loginIllustration);
         loginForm = findViewById(R.id.loginForm);
         socialLogin = findViewById(R.id.socialLogin);
         loginFooter = findViewById(R.id.loginFooter);
@@ -88,14 +87,6 @@ public class LoginActivity extends AppCompatActivity {
                     .alpha(1f)
                     .translationY(0f)
                     .setDuration(600)
-                    .setInterpolator(new DecelerateInterpolator())
-                    .start();
-
-            loginIllustration.animate()
-                    .alpha(1f)
-                    .translationY(0f)
-                    .setStartDelay(150)
-                    .setDuration(500)
                     .setInterpolator(new DecelerateInterpolator())
                     .start();
 

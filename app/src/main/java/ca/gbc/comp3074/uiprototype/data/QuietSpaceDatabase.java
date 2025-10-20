@@ -12,7 +12,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Database(entities = { PlaceEntity.class }, version = 2, exportSchema = false)
+@Database(entities = { PlaceEntity.class }, version = 3, exportSchema = false)
 @TypeConverters({ Converters.class })
 public abstract class QuietSpaceDatabase extends RoomDatabase {
 
@@ -33,14 +33,15 @@ public abstract class QuietSpaceDatabase extends RoomDatabase {
                                 @Override
                                 public void onCreate(@NonNull SupportSQLiteDatabase db) {
                                     super.onCreate(db);
-                                    populateSampleData();
+                                    // Skip sample data - we'll use Google Places API instead
+                                    // populateSampleData();
                                 }
 
                                 @Override
                                 public void onOpen(@NonNull SupportSQLiteDatabase db) {
                                     super.onOpen(db);
-                                    // Always populate sample data on open to ensure data is present
-                                    populateSampleData();
+                                    // Skip sample data population - Google Places API will provide real data
+                                    // populateSampleData();
                                 }
                             })
                             .build();

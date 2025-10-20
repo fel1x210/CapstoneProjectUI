@@ -1,8 +1,10 @@
 package ca.gbc.comp3074.uiprototype.data;
 
 import android.content.Context;
+import android.location.Location;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
@@ -14,6 +16,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import ca.gbc.comp3074.uiprototype.api.GooglePlacesService;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,17 +26,27 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class MapDataManager {
+    private static final String TAG = "MapDataManager";
+    private static final int DEFAULT_SEARCH_RADIUS = 5000; // 5km radius
 
     private final PlaceRepository placeRepository;
+    private final GooglePlacesService placesService;
     private final MutableLiveData<List<PlaceEntity>> placesLiveData = new MutableLiveData<>();
     private final Map<String, PlaceEntity> markerToPlaceMap = new HashMap<>();
     private GoogleMap googleMap;
     private Observer<List<PlaceEntity>> placesObserver;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
+    
+    // Current location for searches
+    private LatLng currentLocation;
 
     public MapDataManager(Context context) {
         placeRepository = new PlaceRepository((android.app.Application) context.getApplicationContext());
+        placesService = new GooglePlacesService();
+        
+        // Set default location (Toronto) if no current location
+        currentLocation = new LatLng(43.6532, -79.3832);
     }
 
     public LiveData<List<PlaceEntity>> getPlaces() {
@@ -42,6 +56,81 @@ public class MapDataManager {
     public void setGoogleMap(GoogleMap map) {
         this.googleMap = map;
         loadPlacesOnMap();
+    }
+    
+    /**
+     * Update current location and refresh places
+     */
+    public void updateLocation(LatLng location) {
+        this.currentLocation = location;
+        refreshPlacesFromGoogle();
+    }
+    
+    /**
+     * Fetch places from Google Places API
+     */
+    public void refreshPlacesFromGoogle() {
+        if (currentLocation == null) {
+            Log.w(TAG, "No current location set, using default");
+            currentLocation = new LatLng(43.6532, -79.3832); // Toronto default
+        }
+        
+        Log.d(TAG, "Fetching places from Google API near: " + currentLocation.latitude + ", " + currentLocation.longitude);
+        
+        placesService.searchQuietPlaces(
+            currentLocation.latitude, 
+            currentLocation.longitude, 
+            DEFAULT_SEARCH_RADIUS,
+            new GooglePlacesService.PlacesCallback() {
+                @Override
+                public void onSuccess(List<GooglePlacesService.GooglePlace> googlePlaces) {
+                    Log.d(TAG, "Received " + googlePlaces.size() + " places from Google API");
+                    
+                    // Convert Google Places to our entities
+                    List<PlaceEntity> placeEntities = PlaceDataConverter.convertGooglePlacesToEntities(googlePlaces);
+                    
+                    // Save to local database and update map
+                    executorService.execute(() -> {
+                        // Clear existing places and add new ones
+                        placeRepository.deleteAllPlaces();
+                        for (PlaceEntity place : placeEntities) {
+                            placeRepository.insertPlace(place);
+                        }
+                        
+                        // Update map on main thread
+                        mainHandler.post(() -> {
+                            updateMarkersFromPlaces(placeEntities);
+                            placesLiveData.setValue(placeEntities);
+                        });
+                    });
+                }
+
+                @Override
+                public void onError(String error) {
+                    Log.e(TAG, "Error fetching places from Google: " + error);
+                    // Fall back to local data
+                    loadPlacesOnMap();
+                }
+            }
+        );
+    }
+    
+    /**
+     * Search for specific types of places
+     */
+    public void searchPlacesByType(String placeType, GooglePlacesService.PlacesCallback callback) {
+        if (currentLocation == null) {
+            callback.onError("Location not available");
+            return;
+        }
+        
+        placesService.searchPlacesByType(
+            currentLocation.latitude,
+            currentLocation.longitude,
+            DEFAULT_SEARCH_RADIUS,
+            placeType,
+            callback
+        );
     }
 
     public void observePlaces(LifecycleOwner lifecycleOwner) {

@@ -11,23 +11,30 @@ final class SampleData {
 
     static List<PlaceEntity> getPlaces() {
         List<PlaceEntity> places = new ArrayList<>();
-        places.add(new PlaceEntity(
-                "The Urban Reader Café",
-                "Café",
-                "0.2 miles",
-                4.7f,
-                362,
-                true,
-                18,
-                "2 days ago",
-                "☕",
-                Arrays.asList("Quiet corners", "WiFi", "Specialty brews"),
-                43.6532, -79.3832,
-                "123 Queen St W, Toronto, ON",
-                "A cozy café perfect for reading and studying with excellent coffee and quiet atmosphere.",
-                "(416) 555-0123",
-                "www.urbanreader.com",
-                "Mon-Fri: 7AM-9PM, Sat-Sun: 8AM-10PM"));
+        
+        // Create places using default constructor and then set fields
+        PlaceEntity cafe1 = new PlaceEntity();
+        cafe1.name = "The Urban Reader Café";
+        cafe1.type = "Café";
+        cafe1.distance = "0.2 miles";
+        cafe1.rating = 4.7f;
+        cafe1.reviewCount = 362;
+        cafe1.favorite = true;
+        cafe1.checkins = 18;
+        cafe1.lastVisited = "2 days ago";
+        cafe1.emoji = "☕";
+        cafe1.tags = Arrays.asList("Quiet corners", "WiFi", "Specialty brews");
+        cafe1.latitude = 43.6532;
+        cafe1.longitude = -79.3832;
+        cafe1.address = "123 Queen St W, Toronto, ON";
+        cafe1.description = "A cozy café perfect for reading and studying with excellent coffee and quiet atmosphere.";
+        cafe1.phoneNumber = "(416) 555-0123";
+        cafe1.website = "www.urbanreader.com";
+        cafe1.openingHours = "Mon-Fri: 7AM-9PM, Sat-Sun: 8AM-10PM";
+        cafe1.quietScore = 4.2f;
+        cafe1.isOpen = true;
+        cafe1.priceLevel = "$$";
+        places.add(cafe1);
         
         places.add(new PlaceEntity(
                 "Toronto Reference Library",

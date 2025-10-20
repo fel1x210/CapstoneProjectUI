@@ -46,4 +46,25 @@ public class PlaceRepository {
             return java.util.Collections.emptyList();
         }
     }
+    
+    /**
+     * Insert a place into the database
+     */
+    public void insertPlace(PlaceEntity place) {
+        executorService.execute(() -> placeDao.insert(place));
+    }
+    
+    /**
+     * Delete all places from the database
+     */
+    public void deleteAllPlaces() {
+        executorService.execute(() -> placeDao.deleteAll());
+    }
+    
+    /**
+     * Update a place in the database
+     */
+    public void updatePlace(PlaceEntity place) {
+        executorService.execute(() -> placeDao.update(place));
+    }
 }

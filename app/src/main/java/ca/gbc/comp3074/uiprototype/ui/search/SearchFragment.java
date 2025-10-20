@@ -28,6 +28,7 @@ import java.util.Locale;
 
 import ca.gbc.comp3074.uiprototype.R;
 import ca.gbc.comp3074.uiprototype.data.PlaceEntity;
+import ca.gbc.comp3074.uiprototype.utils.AppConfig;
 
 public class SearchFragment extends Fragment {
 
@@ -60,6 +61,7 @@ public class SearchFragment extends Fragment {
     private TextView textResultsTitle;
     private SearchViewModel viewModel;
     private String currentQuery = "";
+    private SearchManager searchManager;
 
     public SearchFragment() {
         super(R.layout.fragment_search);
@@ -69,6 +71,10 @@ public class SearchFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         bindViews(view);
+        
+        // Initialize SearchManager for Google Places API
+        searchManager = new SearchManager(requireContext());
+        
         populateRecentSearches();
         populateCategories();
         setupInteractions();
@@ -165,10 +171,33 @@ public class SearchFragment extends Fragment {
             return;
         }
 
-        List<Place> matches = filterPlaces(trimmed);
-        renderPlaces(matches,
-                getString(R.string.search_results_title, trimmed, matches.size()),
-                true);
+        // Show loading state
+        showLoadingState(trimmed);
+
+        // Search using Google Places API
+        searchManager.searchByText(trimmed, AppConfig.DEFAULT_LATITUDE, AppConfig.DEFAULT_LONGITUDE, 
+            new SearchManager.SearchCallback() {
+                @Override
+                public void onSearchResults(List<PlaceEntity> placeEntities) {
+                    requireActivity().runOnUiThread(() -> {
+                        List<Place> googlePlaces = convertToPlaces(placeEntities);
+                        renderPlaces(googlePlaces,
+                                getString(R.string.search_results_title, trimmed, googlePlaces.size()),
+                                true);
+                    });
+                }
+
+                @Override
+                public void onSearchError(String error) {
+                    requireActivity().runOnUiThread(() -> {
+                        // Fallback to local search
+                        List<Place> matches = filterPlaces(trimmed);
+                        renderPlaces(matches,
+                                getString(R.string.search_results_title, trimmed, matches.size()),
+                                true);
+                    });
+                }
+            });
     }
 
     private void showFeaturedPlaces() {
@@ -297,6 +326,48 @@ public class SearchFragment extends Fragment {
                     entity.rating,
                     entity.reviewCount,
                     entity.tags));
+        }
+    }
+    
+    private void showLoadingState(String query) {
+        resultsContainer.removeAllViews();
+        textResultsTitle.setText("Searching for \"" + query + "\"...");
+        noResultsView.setVisibility(View.GONE);
+        resultsContainer.setVisibility(View.VISIBLE);
+        resultsSection.setVisibility(View.VISIBLE);
+        recentSection.setVisibility(View.GONE);
+        categoriesSection.setVisibility(View.GONE);
+        
+        // Add a simple loading indicator
+        TextView loadingText = new TextView(requireContext());
+        loadingText.setText("🔍 Searching quiet spaces...");
+        loadingText.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+        loadingText.setPadding(32, 32, 32, 32);
+        resultsContainer.addView(loadingText);
+    }
+    
+    private List<Place> convertToPlaces(List<PlaceEntity> placeEntities) {
+        List<Place> converted = new ArrayList<>();
+        for (PlaceEntity entity : placeEntities) {
+            converted.add(new Place(
+                    entity.name,
+                    entity.type,
+                    calculateDistance(entity.latitude, entity.longitude),
+                    entity.rating,
+                    entity.reviewCount,
+                    entity.tags != null ? entity.tags : Arrays.asList("Quiet space")));
+        }
+        return converted;
+    }
+    
+    private String calculateDistance(double lat, double lng) {
+        // Simple distance calculation (you could use a proper distance formula)
+        double distance = Math.sqrt(Math.pow(lat - AppConfig.DEFAULT_LATITUDE, 2) + 
+                                  Math.pow(lng - AppConfig.DEFAULT_LONGITUDE, 2)) * 111; // Rough km conversion
+        if (distance < 1) {
+            return String.format("%.0f m", distance * 1000);
+        } else {
+            return String.format("%.1f km", distance);
         }
     }
 

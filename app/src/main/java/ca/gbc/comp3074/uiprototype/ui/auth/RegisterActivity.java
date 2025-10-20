@@ -29,13 +29,11 @@ public class RegisterActivity extends AppCompatActivity {
     private View registerSocialLogin;
     private TextView registerFooter;
     private TextInputEditText editTextFullName;
-    private TextInputEditText editTextEmail;
     private TextInputEditText editTextPassword;
     private TextInputEditText editTextConfirmPassword;
     private MaterialButton buttonRegister;
     private TextView textViewLogin;
-    private LinearLayout buttonGoogle;
-    private LinearLayout buttonApple;
+    private com.google.android.material.checkbox.MaterialCheckBox checkboxTerms;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,29 +47,31 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void initViews() {
         cardRegister = findViewById(R.id.cardRegister);
-        registerIllustration = findViewById(R.id.registerIllustration);
+        registerIllustration = findViewById(R.id.registerHeader);
         registerForm = findViewById(R.id.registerForm);
-        registerSocialLogin = findViewById(R.id.registerSocialLogin);
         registerFooter = findViewById(R.id.registerFooter);
         editTextFullName = findViewById(R.id.editTextFullName);
-        editTextEmail = findViewById(R.id.editTextEmail);
         editTextPassword = findViewById(R.id.editTextPassword);
         editTextConfirmPassword = findViewById(R.id.editTextConfirmPassword);
         buttonRegister = findViewById(R.id.buttonRegister);
         textViewLogin = findViewById(R.id.textViewLogin);
-        buttonGoogle = findViewById(R.id.buttonGoogle);
-        buttonApple = findViewById(R.id.buttonApple);
+        checkboxTerms = findViewById(R.id.checkboxTerms);
     }
 
     private void setupInteractions() {
         buttonRegister.setOnClickListener(v -> {
             String fullName = textOrEmpty(editTextFullName);
-            String email = textOrEmpty(editTextEmail);
             String password = textOrEmpty(editTextPassword);
             String confirmPassword = textOrEmpty(editTextConfirmPassword);
 
-            if (fullName.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
+            if (fullName.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
                 showAlert(getString(R.string.register_error_fields));
+                shakeCard();
+                return;
+            }
+
+            if (!checkboxTerms.isChecked()) {
+                showAlert("Please agree to Terms & Privacy Policy");
                 shakeCard();
                 return;
             }
@@ -96,9 +96,6 @@ public class RegisterActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         });
-
-        buttonGoogle.setOnClickListener(v -> showInfoDialog(getString(R.string.social_google)));
-        buttonApple.setOnClickListener(v -> showInfoDialog(getString(R.string.social_apple)));
     }
 
     private void animateEntrance() {
@@ -110,26 +107,10 @@ public class RegisterActivity extends AppCompatActivity {
                     .setInterpolator(new DecelerateInterpolator())
                     .start();
 
-            registerIllustration.animate()
-                    .alpha(1f)
-                    .translationY(0f)
-                    .setStartDelay(150)
-                    .setDuration(500)
-                    .setInterpolator(new DecelerateInterpolator())
-                    .start();
-
             registerForm.animate()
                     .alpha(1f)
                     .translationY(0f)
                     .setStartDelay(250)
-                    .setDuration(550)
-                    .setInterpolator(new DecelerateInterpolator())
-                    .start();
-
-            registerSocialLogin.animate()
-                    .alpha(1f)
-                    .translationY(0f)
-                    .setStartDelay(350)
                     .setDuration(550)
                     .setInterpolator(new DecelerateInterpolator())
                     .start();

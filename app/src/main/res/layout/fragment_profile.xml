@@ -80,7 +80,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:src="@drawable/ic_profile"
-                        android:tint="@android:color/white"
+                        app:tint="@android:color/white"
                         android:scaleType="center"
                         android:contentDescription="Profile avatar" />
                 </androidx.cardview.widget.CardView>

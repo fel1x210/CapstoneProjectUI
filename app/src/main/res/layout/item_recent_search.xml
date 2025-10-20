@@ -29,6 +29,6 @@
             android:layout_height="24dp"
             android:src="@android:drawable/ic_menu_search"
             android:contentDescription="Recent search"
-            android:tint="@color/quiet_space_primary" />
+            app:tint="@color/quiet_space_primary" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
