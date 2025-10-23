@@ -19,6 +19,10 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 
 import ca.gbc.comp3074.uiprototype.R;
+import ca.gbc.comp3074.uiprototype.data.supabase.SupabaseAuthHelper;
+import ca.gbc.comp3074.uiprototype.data.supabase.SupabaseClientManager;
+import ca.gbc.comp3074.uiprototype.data.supabase.models.UserProfile;
+import ca.gbc.comp3074.uiprototype.ui.animation.WelcomeAnimationActivity;
 import ca.gbc.comp3074.uiprototype.ui.main.MainActivity;
 
 public class LoginActivity extends AppCompatActivity {
@@ -35,10 +39,17 @@ public class LoginActivity extends AppCompatActivity {
     private LinearLayout buttonGoogle;
     private LinearLayout buttonApple;
 
+    private SupabaseAuthHelper authHelper;
+    private boolean isLoggingIn = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        // Initialize Supabase
+        SupabaseClientManager.INSTANCE.initialize();
+        authHelper = new SupabaseAuthHelper();
 
         initViews();
         setupInteractions();
@@ -60,16 +71,25 @@ public class LoginActivity extends AppCompatActivity {
 
     private void setupInteractions() {
         buttonLogin.setOnClickListener(v -> {
+            if (isLoggingIn)
+                return; // Prevent double clicks
+
             String email = editTextEmail.getText() != null ? editTextEmail.getText().toString().trim() : "";
             String password = editTextPassword.getText() != null ? editTextPassword.getText().toString().trim() : "";
 
             if (email.isEmpty() || password.isEmpty()) {
-                showAlert(getString(R.string.login_error));
+                showAlert("Please enter both email and password");
                 shakeCard();
                 return;
             }
 
-            playButtonPressAnimation(buttonLogin, () -> showSuccessDialog());
+            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                showAlert("Please enter a valid email address");
+                shakeCard();
+                return;
+            }
+
+            performLogin(email, password);
         });
 
         textViewRegister.setOnClickListener(v -> {
@@ -79,6 +99,31 @@ public class LoginActivity extends AppCompatActivity {
 
         buttonGoogle.setOnClickListener(v -> showInfoDialog(getString(R.string.social_google)));
         buttonApple.setOnClickListener(v -> showInfoDialog(getString(R.string.social_apple)));
+    }
+
+    private void performLogin(String email, String password) {
+        isLoggingIn = true;
+        buttonLogin.setEnabled(false);
+        buttonLogin.setText("Signing in...");
+
+        authHelper.signIn(email, password, new SupabaseAuthHelper.AuthCallback() {
+            @Override
+            public void onSuccess(UserProfile profile) {
+                isLoggingIn = false;
+                buttonLogin.setEnabled(true);
+                buttonLogin.setText(getString(R.string.action_log_in));
+                showSuccessDialog(profile);
+            }
+
+            @Override
+            public void onError(String error) {
+                isLoggingIn = false;
+                buttonLogin.setEnabled(true);
+                buttonLogin.setText(getString(R.string.action_log_in));
+                showAlert("Login failed: " + error);
+                shakeCard();
+            }
+        });
     }
 
     private void animateEntrance() {
@@ -168,15 +213,19 @@ public class LoginActivity extends AppCompatActivity {
                 .show();
     }
 
-    private void showSuccessDialog() {
-        new MaterialAlertDialogBuilder(this)
-                .setTitle(getString(R.string.action_log_in))
-                .setMessage(getString(R.string.login_success))
-                .setPositiveButton(android.R.string.ok, (dialog, which) -> {
-                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                    startActivity(intent);
-                    finish();
-                })
-                .show();
+    private void showSuccessDialog(UserProfile profile) {
+        // Launch full-screen welcome animation
+        String userName = profile != null && profile.getFullName() != null
+                ? profile.getFullName()
+                : "User";
+
+        Intent intent = new Intent(LoginActivity.this, WelcomeAnimationActivity.class);
+        intent.putExtra(WelcomeAnimationActivity.EXTRA_USER_NAME, userName);
+        intent.putExtra(WelcomeAnimationActivity.EXTRA_IS_FIRST_TIME, false);
+        startActivity(intent);
+        finish();
+
+        // Use fade transition for smooth effect
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
     }
 }

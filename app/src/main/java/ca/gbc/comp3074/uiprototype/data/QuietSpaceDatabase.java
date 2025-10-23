@@ -29,35 +29,10 @@ public abstract class QuietSpaceDatabase extends RoomDatabase {
                             QuietSpaceDatabase.class,
                             "quietspace-db")
                             .fallbackToDestructiveMigration()
-                            .addCallback(new Callback() {
-                                @Override
-                                public void onCreate(@NonNull SupportSQLiteDatabase db) {
-                                    super.onCreate(db);
-                                    // Skip sample data - we'll use Google Places API instead
-                                    // populateSampleData();
-                                }
-
-                                @Override
-                                public void onOpen(@NonNull SupportSQLiteDatabase db) {
-                                    super.onOpen(db);
-                                    // Skip sample data population - Google Places API will provide real data
-                                    // populateSampleData();
-                                }
-                            })
                             .build();
                 }
             }
         }
         return INSTANCE;
-    }
-
-    private static void populateSampleData() {
-        databaseWriteExecutor.execute(() -> {
-            if (INSTANCE != null) {
-                PlaceDao dao = INSTANCE.placeDao();
-                dao.clear();
-                dao.insertAll(SampleData.getPlaces());
-            }
-        });
     }
 }

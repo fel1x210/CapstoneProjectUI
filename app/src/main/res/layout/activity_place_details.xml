@@ -11,6 +11,7 @@
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:fitsSystemWindows="true"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
         <com.google.android.material.appbar.MaterialToolbar
@@ -18,6 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@color/quiet_space_primary"
+            android:elevation="4dp"
             app:title="Place Details"
             app:titleTextColor="@android:color/white"
             app:navigationIconTint="@android:color/white" />

@@ -19,6 +19,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 
 import ca.gbc.comp3074.uiprototype.R;
+import ca.gbc.comp3074.uiprototype.data.supabase.SupabaseAuthHelper;
+import ca.gbc.comp3074.uiprototype.data.supabase.SupabaseClientManager;
 import ca.gbc.comp3074.uiprototype.ui.main.MainActivity;
 
 public class RegisterActivity extends AppCompatActivity {
@@ -29,16 +31,24 @@ public class RegisterActivity extends AppCompatActivity {
     private View registerSocialLogin;
     private TextView registerFooter;
     private TextInputEditText editTextFullName;
+    private TextInputEditText editTextEmail;
     private TextInputEditText editTextPassword;
     private TextInputEditText editTextConfirmPassword;
     private MaterialButton buttonRegister;
     private TextView textViewLogin;
     private com.google.android.material.checkbox.MaterialCheckBox checkboxTerms;
 
+    private SupabaseAuthHelper authHelper;
+    private boolean isRegistering = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+
+        // Initialize Supabase
+        SupabaseClientManager.INSTANCE.initialize();
+        authHelper = new SupabaseAuthHelper();
 
         initViews();
         setupInteractions();
@@ -47,10 +57,12 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void initViews() {
         cardRegister = findViewById(R.id.cardRegister);
+        cardRegister = findViewById(R.id.cardRegister);
         registerIllustration = findViewById(R.id.registerHeader);
         registerForm = findViewById(R.id.registerForm);
         registerFooter = findViewById(R.id.registerFooter);
         editTextFullName = findViewById(R.id.editTextFullName);
+        editTextEmail = findViewById(R.id.editTextEmail);
         editTextPassword = findViewById(R.id.editTextPassword);
         editTextConfirmPassword = findViewById(R.id.editTextConfirmPassword);
         buttonRegister = findViewById(R.id.buttonRegister);
@@ -60,12 +72,22 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void setupInteractions() {
         buttonRegister.setOnClickListener(v -> {
+            if (isRegistering)
+                return; // Prevent double clicks
+
             String fullName = textOrEmpty(editTextFullName);
+            String email = textOrEmpty(editTextEmail);
             String password = textOrEmpty(editTextPassword);
             String confirmPassword = textOrEmpty(editTextConfirmPassword);
 
-            if (fullName.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
+            if (fullName.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
                 showAlert(getString(R.string.register_error_fields));
+                shakeCard();
+                return;
+            }
+
+            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                showAlert("Please enter a valid email address");
                 shakeCard();
                 return;
             }
@@ -88,13 +110,38 @@ public class RegisterActivity extends AppCompatActivity {
                 return;
             }
 
-            playButtonPressAnimation(buttonRegister, this::showSuccessDialog);
+            performRegistration(email, password, fullName);
         });
 
         textViewLogin.setOnClickListener(v -> {
             Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
             startActivity(intent);
             finish();
+        });
+    }
+
+    private void performRegistration(String email, String password, String fullName) {
+        isRegistering = true;
+        buttonRegister.setEnabled(false);
+        buttonRegister.setText("Creating account...");
+
+        authHelper.signUp(email, password, fullName, new SupabaseAuthHelper.SignUpCallback() {
+            @Override
+            public void onSuccess() {
+                isRegistering = false;
+                buttonRegister.setEnabled(true);
+                buttonRegister.setText(getString(R.string.action_sign_up));
+                showSuccessDialog();
+            }
+
+            @Override
+            public void onError(String error) {
+                isRegistering = false;
+                buttonRegister.setEnabled(true);
+                buttonRegister.setText(getString(R.string.action_sign_up));
+                showAlert("Registration failed: " + error);
+                shakeCard();
+            }
         });
     }
 

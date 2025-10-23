@@ -3,7 +3,6 @@ package ca.gbc.comp3074.uiprototype.ui.auth;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Intent;
-import android.graphics.Paint;
 import android.os.Bundle;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
@@ -27,7 +26,6 @@ public class WelcomeActivity extends AppCompatActivity {
     private TextView textFooter;
     private MaterialButton buttonSignUp;
     private MaterialButton buttonLogin;
-    private MaterialButton buttonGuest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,9 +45,6 @@ public class WelcomeActivity extends AppCompatActivity {
         textFooter = findViewById(R.id.textFooter);
         buttonSignUp = findViewById(R.id.buttonSignUp);
         buttonLogin = findViewById(R.id.buttonLogin);
-        buttonGuest = findViewById(R.id.buttonGuest);
-
-        buttonGuest.setPaintFlags(buttonGuest.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
     }
 
     private void setupInteractions() {
@@ -60,11 +55,6 @@ public class WelcomeActivity extends AppCompatActivity {
 
         buttonLogin.setOnClickListener(v -> playButtonPressAnimation(buttonLogin, () -> {
             Intent intent = new Intent(WelcomeActivity.this, LoginActivity.class);
-            startActivity(intent);
-        }));
-
-        buttonGuest.setOnClickListener(v -> playButtonPressAnimation(buttonGuest, () -> {
-            Intent intent = new Intent(WelcomeActivity.this, MainActivity.class);
             startActivity(intent);
         }));
     }

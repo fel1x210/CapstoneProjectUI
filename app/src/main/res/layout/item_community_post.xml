@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="12dp"
+    android:layout_marginVertical="6dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="2dp"
+    app:strokeWidth="0dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- User Header -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="12dp">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/imgUserAvatar"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_profile"
+                app:shapeAppearanceOverlay="@style/CircleImageView"
+                app:strokeColor="@color/quiet_space_primary"
+                app:strokeWidth="1dp" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvUserName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/quiet_space_text_primary"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    tools:text="John Doe" />
+
+                <TextView
+                    android:id="@+id/tvPlaceName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:textColor="@color/quiet_space_primary"
+                    android:textSize="12sp"
+                    tools:text="at Quiet Coffee Shop" />
+
+            </LinearLayout>
+
+            <ImageButton
+                android:id="@+id/btnMore"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="More options"
+                android:src="@drawable/ic_more_vert" />
+
+        </LinearLayout>
+
+        <!-- Post Image -->
+        <ImageView
+            android:id="@+id/imgPost"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:scaleType="centerCrop"
+            android:background="@color/quiet_space_placeholder"
+            tools:src="@drawable/ic_image" />
+
+        <!-- Category Badge -->
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipCategory"
+            style="@style/Widget.Material3.Chip.Assist"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="-20dp"
+            android:textSize="10sp"
+            app:chipBackgroundColor="@color/quiet_space_primary"
+            app:chipCornerRadius="12dp"
+            app:chipMinHeight="24dp"
+            app:textEndPadding="8dp"
+            app:textStartPadding="8dp"
+            tools:text="Food" />
+
+        <!-- Action Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="12dp"
+            android:paddingTop="8dp">
+
+            <ImageButton
+                android:id="@+id/btnLike"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Like"
+                android:src="@drawable/ic_heart_outline"
+                app:tint="@color/quiet_space_text_primary" />
+
+            <TextView
+                android:id="@+id/tvLikesCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:textColor="@color/quiet_space_text_primary"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                tools:text="42" />
+
+            <ImageButton
+                android:id="@+id/btnComment"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginStart="16dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Comment"
+                android:src="@drawable/ic_comment"
+                app:tint="@color/quiet_space_text_primary" />
+
+            <TextView
+                android:id="@+id/tvCommentsCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:textColor="@color/quiet_space_text_primary"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                tools:text="12" />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/tvTimeAgo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/quiet_space_text_secondary"
+                android:textSize="12sp"
+                tools:text="2h ago" />
+
+        </LinearLayout>
+
+        <!-- Caption -->
+        <TextView
+            android:id="@+id/tvCaption"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:paddingHorizontal="12dp"
+            android:paddingBottom="12dp"
+            android:textColor="@color/quiet_space_text_primary"
+            android:textSize="14sp"
+            tools:text="Amazing coffee and cozy atmosphere! Perfect place for quiet study sessions. ☕📚" />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

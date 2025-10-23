@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import ca.gbc.comp3074.uiprototype.R;
+import ca.gbc.comp3074.uiprototype.ui.community.CommunityFragment;
 import ca.gbc.comp3074.uiprototype.ui.favorites.FavoritesFragment;
 import ca.gbc.comp3074.uiprototype.ui.home.HomeFragment;
 import ca.gbc.comp3074.uiprototype.ui.profile.ProfileFragment;
@@ -20,10 +21,14 @@ import ca.gbc.comp3074.uiprototype.ui.search.SearchFragment;
 public class MainActivity extends AppCompatActivity {
 
     private BottomNavigationView bottomNavigationView;
-    private final Fragment homeFragment = new HomeFragment();
-    private final Fragment searchFragment = new SearchFragment();
-    private final Fragment favoritesFragment = new FavoritesFragment();
-    private final Fragment profileFragment = new ProfileFragment();
+
+    // Lazy initialize fragments to reduce memory usage and startup time
+    private Fragment homeFragment;
+    private Fragment searchFragment;
+    private Fragment communityFragment;
+    private Fragment favoritesFragment;
+    private Fragment profileFragment;
+    private Fragment activeFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,15 +45,28 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.navigation_home) {
+                if (homeFragment == null)
+                    homeFragment = new HomeFragment();
                 switchFragment(homeFragment);
                 return true;
             } else if (itemId == R.id.navigation_search) {
+                if (searchFragment == null)
+                    searchFragment = new SearchFragment();
                 switchFragment(searchFragment);
                 return true;
+            } else if (itemId == R.id.navigation_community) {
+                if (communityFragment == null)
+                    communityFragment = CommunityFragment.Companion.newInstance();
+                switchFragment(communityFragment);
+                return true;
             } else if (itemId == R.id.navigation_favorites) {
+                if (favoritesFragment == null)
+                    favoritesFragment = new FavoritesFragment();
                 switchFragment(favoritesFragment);
                 return true;
             } else if (itemId == R.id.navigation_profile) {
+                if (profileFragment == null)
+                    profileFragment = new ProfileFragment();
                 switchFragment(profileFragment);
                 return true;
             }
@@ -57,20 +75,34 @@ public class MainActivity extends AppCompatActivity {
 
         if (savedInstanceState == null) {
             bottomNavigationView.setSelectedItemId(R.id.navigation_home);
-            switchFragment(homeFragment);
         }
     }
 
     private void switchFragment(Fragment fragment) {
+        if (fragment == activeFragment)
+            return; // Don't reload same fragment
+
+        activeFragment = fragment;
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragment_container, fragment)
-                .commit();
+                .commitNow(); // Use commitNow() to avoid delays
     }
 
     public void navigateToProfile() {
         bottomNavigationView.setSelectedItemId(R.id.navigation_profile);
-        switchFragment(profileFragment);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Clear references to prevent memory leaks
+        homeFragment = null;
+        searchFragment = null;
+        communityFragment = null;
+        favoritesFragment = null;
+        profileFragment = null;
+        activeFragment = null;
     }
 
     public void navigateToSearch() {

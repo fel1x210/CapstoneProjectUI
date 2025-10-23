@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/quiet_space_surface_variant">
+    android:background="@color/quiet_space_surface_variant"
+    android:fitsSystemWindows="true">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardContainer"
@@ -101,19 +102,6 @@
                     app:strokeWidth="1dp"
                     app:cornerRadius="12dp" />
             </LinearLayout>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/buttonGuest"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text="@string/action_continue_as_guest"
-                android:textAllCaps="false"
-                android:textColor="@color/quiet_space_text_secondary"
-                android:textSize="16sp"
-                android:fontFamily="sans-serif"
-                app:iconGravity="textStart" />
 
             <TextView
                 android:id="@+id/textFooter"

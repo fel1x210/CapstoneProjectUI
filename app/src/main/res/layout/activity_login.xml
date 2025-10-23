@@ -5,7 +5,8 @@
     android:layout_height="match_parent"
     android:background="#F5F3F0"
     android:padding="24dp"
-    android:clipToPadding="false">
+    android:clipToPadding="false"
+    android:fitsSystemWindows="true">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -21,8 +22,8 @@
             android:alpha="0"
             android:elevation="8dp"
             android:translationY="24dp"
-            app:cardCornerRadius="24dp"
-            app:cardUseCompatPadding="true">
+                app:cardCornerRadius="24dp"
+                app:cardUseCompatPadding="true">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -274,5 +275,6 @@
                 </LinearLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
+        
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

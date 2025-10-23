@@ -7,6 +7,15 @@
 
     <style name="Theme.UIPrototype" parent="Base.Theme.UIPrototype" />
 
+    <style name="Theme.UIPrototype.Fullscreen" parent="Theme.UIPrototype">
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsTranslucent">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
+    </style>
+
     <style name="BottomNavTextActive" parent="TextAppearance.MaterialComponents.Caption">
         <item name="android:textSize">12sp</item>
         <item name="android:textColor">@color/quiet_space_primary</item>
@@ -17,5 +26,10 @@
         <item name="android:textSize">12sp</item>
         <item name="android:textColor">@color/quiet_space_on_surface_variant</item>
         <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+    <style name="CircleImageView">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
     </style>
 </resources>

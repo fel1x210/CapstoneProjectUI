@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="false">
+
+    <!-- Full screen gradient background -->
+    <View
+        android:id="@+id/welcomeBackground"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/gradient_background_welcome"
+        android:alpha="0" />
+
+    <!-- Main content container -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="32dp">
+
+        <!-- Large animated shuffle text -->
+        <ca.gbc.comp3074.uiprototype.ui.animation.ShuffleTextView
+            android:id="@+id/shuffleTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="WELCOME TO QUIETSPACE"
+            android:textSize="36sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
+            android:gravity="center"
+            android:fontFamily="monospace"
+            android:letterSpacing="0.1"
+            android:lineSpacingMultiplier="1.2"
+            android:layout_marginBottom="48dp"
+            android:alpha="0" />
+
+        <!-- Subtitle text -->
+        <TextView
+            android:id="@+id/welcomeSubtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Welcome back!"
+            android:textSize="28sp"
+            android:textColor="@android:color/white"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:alpha="0"
+            android:layout_marginBottom="16dp" />
+
+        <!-- User name text -->
+        <TextView
+            android:id="@+id/welcomeUserName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="User"
+            android:textSize="22sp"
+            android:textColor="#E0FFFFFF"
+            android:gravity="center"
+            android:alpha="0" />
+
+    </LinearLayout>
+
+</FrameLayout>

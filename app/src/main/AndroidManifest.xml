@@ -6,6 +6,10 @@
           <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
           <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
           <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+          <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+          <uses-permission android:name="android.permission.CAMERA" />
+          <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" 
+              android:maxSdkVersion="32" />
 
     <application
             android:allowBackup="true"
@@ -16,7 +20,10 @@
             android:roundIcon="@mipmap/ic_launcher_round"
             android:supportsRtl="true"
             android:theme="@style/Theme.UIPrototype"
-            android:name=".QuietSpaceApp">
+            android:name=".QuietSpaceApp"
+            android:hardwareAccelerated="true"
+            android:largeHeap="true"
+            android:usesCleartextTraffic="false">
 
         <!-- Welcome Activity - Main launcher -->
         <activity
@@ -48,6 +55,47 @@
                 android:name=".ui.details.PlaceDetailsActivity"
                 android:exported="false"
                 android:parentActivityName=".ui.main.MainActivity" />
+
+        <!-- Privacy Settings Activity -->
+        <activity
+                android:name=".ui.profile.PrivacySettingsActivity"
+                android:exported="false"
+                android:parentActivityName=".ui.main.MainActivity" />
+
+        <!-- Edit Profile Activity -->
+        <activity
+                android:name=".ui.profile.EditProfileActivity"
+                android:exported="false"
+                android:parentActivityName=".ui.main.MainActivity" />
+
+        <!-- Welcome Animation Activity (Full Screen) -->
+        <activity
+                android:name=".ui.animation.WelcomeAnimationActivity"
+                android:exported="false"
+                android:theme="@style/Theme.UIPrototype.Fullscreen"
+                android:screenOrientation="portrait" />
+
+        <!-- Community Activities -->
+        <activity
+                android:name=".ui.community.CreatePostActivity"
+                android:exported="false"
+                android:parentActivityName=".ui.main.MainActivity" />
+
+        <activity
+                android:name=".ui.community.PostCommentsActivity"
+                android:exported="false"
+                android:parentActivityName=".ui.main.MainActivity" />
+
+        <!-- File Provider for Camera -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="ca.gbc.comp3074.uiprototype.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
 
         <!-- Google Maps API -->
         <meta-data

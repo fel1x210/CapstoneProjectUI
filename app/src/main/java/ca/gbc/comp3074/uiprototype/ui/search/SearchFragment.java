@@ -71,18 +71,15 @@ public class SearchFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         bindViews(view);
-        
+
         // Initialize SearchManager for Google Places API
         searchManager = new SearchManager(requireContext());
-        
+
         populateRecentSearches();
         populateCategories();
         setupInteractions();
 
-        // Load dummy data immediately as fallback
-        loadDummyData();
-
-        // Setup ViewModel to observe database changes
+        // Setup ViewModel to observe database changes from Google Places API
         setupViewModel();
 
         animateEntrance(view);
@@ -175,29 +172,29 @@ public class SearchFragment extends Fragment {
         showLoadingState(trimmed);
 
         // Search using Google Places API
-        searchManager.searchByText(trimmed, AppConfig.DEFAULT_LATITUDE, AppConfig.DEFAULT_LONGITUDE, 
-            new SearchManager.SearchCallback() {
-                @Override
-                public void onSearchResults(List<PlaceEntity> placeEntities) {
-                    requireActivity().runOnUiThread(() -> {
-                        List<Place> googlePlaces = convertToPlaces(placeEntities);
-                        renderPlaces(googlePlaces,
-                                getString(R.string.search_results_title, trimmed, googlePlaces.size()),
-                                true);
-                    });
-                }
+        searchManager.searchByText(trimmed, AppConfig.DEFAULT_LATITUDE, AppConfig.DEFAULT_LONGITUDE,
+                new SearchManager.SearchCallback() {
+                    @Override
+                    public void onSearchResults(List<PlaceEntity> placeEntities) {
+                        requireActivity().runOnUiThread(() -> {
+                            List<Place> googlePlaces = convertToPlaces(placeEntities);
+                            renderPlaces(googlePlaces,
+                                    getString(R.string.search_results_title, trimmed, googlePlaces.size()),
+                                    true);
+                        });
+                    }
 
-                @Override
-                public void onSearchError(String error) {
-                    requireActivity().runOnUiThread(() -> {
-                        // Fallback to local search
-                        List<Place> matches = filterPlaces(trimmed);
-                        renderPlaces(matches,
-                                getString(R.string.search_results_title, trimmed, matches.size()),
-                                true);
-                    });
-                }
-            });
+                    @Override
+                    public void onSearchError(String error) {
+                        requireActivity().runOnUiThread(() -> {
+                            // Fallback to local search
+                            List<Place> matches = filterPlaces(trimmed);
+                            renderPlaces(matches,
+                                    getString(R.string.search_results_title, trimmed, matches.size()),
+                                    true);
+                        });
+                    }
+                });
     }
 
     private void showFeaturedPlaces() {
@@ -289,30 +286,6 @@ public class SearchFragment extends Fragment {
         return filtered;
     }
 
-    private void loadDummyData() {
-        places.clear();
-        places.add(new Place("The Urban Reader Café", "Café", "0.2 miles", 4.7f, 362,
-                Arrays.asList("Quiet corners", "WiFi", "Specialty brews")));
-        places.add(new Place("Central Library", "Library", "0.5 miles", 4.8f, 128,
-                Arrays.asList("Study rooms", "Very quiet", "Research help")));
-        places.add(new Place("Peaceful Corner Coworking", "Coworking", "0.8 miles", 4.8f, 89,
-                Arrays.asList("Professional", "Outlets", "Meeting rooms")));
-        places.add(new Place("Sunset Study Lounge", "Lounge", "1.2 miles", 4.6f, 54,
-                Arrays.asList("Sunset view", "Soft seating", "Snacks")));
-        places.add(new Place("Aurora Reading Atrium", "Library", "1.5 miles", 4.9f, 204,
-                Arrays.asList("Natural light", "Quiet zones", "Coffee bar")));
-        places.add(new Place("Focus Hub Midtown", "Coworking", "2.0 miles", 4.4f, 178,
-                Arrays.asList("24/7 access", "Phone booths", "Events")));
-        places.add(new Place("Greenhouse Courtyard", "Garden", "2.3 miles", 4.3f, 96,
-                Arrays.asList("Fresh air", "Shade", "Birdsong")));
-        places.add(new Place("Midnight Study Café", "Café", "0.9 miles", 4.5f, 147,
-                Arrays.asList("Late hours", "Cozy", "Music")));
-        places.add(new Place("Riverside Writing Deck", "Outdoor", "3.3 miles", 4.2f, 63,
-                Arrays.asList("River breeze", "Shade", "Picnic tables")));
-        places.add(new Place("Innovation Loft", "Coworking", "1.9 miles", 4.6f, 112,
-                Arrays.asList("Workshops", "Fast WiFi", "Community")));
-    }
-
     private void updatePlaces(List<PlaceEntity> placeEntities) {
         places.clear();
         if (placeEntities == null) {
@@ -328,7 +301,7 @@ public class SearchFragment extends Fragment {
                     entity.tags));
         }
     }
-    
+
     private void showLoadingState(String query) {
         resultsContainer.removeAllViews();
         textResultsTitle.setText("Searching for \"" + query + "\"...");
@@ -337,7 +310,7 @@ public class SearchFragment extends Fragment {
         resultsSection.setVisibility(View.VISIBLE);
         recentSection.setVisibility(View.GONE);
         categoriesSection.setVisibility(View.GONE);
-        
+
         // Add a simple loading indicator
         TextView loadingText = new TextView(requireContext());
         loadingText.setText("🔍 Searching quiet spaces...");
@@ -345,7 +318,7 @@ public class SearchFragment extends Fragment {
         loadingText.setPadding(32, 32, 32, 32);
         resultsContainer.addView(loadingText);
     }
-    
+
     private List<Place> convertToPlaces(List<PlaceEntity> placeEntities) {
         List<Place> converted = new ArrayList<>();
         for (PlaceEntity entity : placeEntities) {
@@ -359,11 +332,11 @@ public class SearchFragment extends Fragment {
         }
         return converted;
     }
-    
+
     private String calculateDistance(double lat, double lng) {
         // Simple distance calculation (you could use a proper distance formula)
-        double distance = Math.sqrt(Math.pow(lat - AppConfig.DEFAULT_LATITUDE, 2) + 
-                                  Math.pow(lng - AppConfig.DEFAULT_LONGITUDE, 2)) * 111; // Rough km conversion
+        double distance = Math.sqrt(Math.pow(lat - AppConfig.DEFAULT_LATITUDE, 2) +
+                Math.pow(lng - AppConfig.DEFAULT_LONGITUDE, 2)) * 111; // Rough km conversion
         if (distance < 1) {
             return String.format("%.0f m", distance * 1000);
         } else {
@@ -394,14 +367,14 @@ public class SearchFragment extends Fragment {
 
             if (scroll instanceof androidx.core.widget.NestedScrollView) {
                 androidx.core.widget.NestedScrollView nsv = (androidx.core.widget.NestedScrollView) scroll;
-				// Ensure the scroll view itself fades/translates in
-				scroll.animate()
-						.alpha(1f)
-						.translationY(0f)
-						.setStartDelay(200)
-						.setDuration(550)
-						.setInterpolator(new DecelerateInterpolator())
-						.start();
+                // Ensure the scroll view itself fades/translates in
+                scroll.animate()
+                        .alpha(1f)
+                        .translationY(0f)
+                        .setStartDelay(200)
+                        .setDuration(550)
+                        .setInterpolator(new DecelerateInterpolator())
+                        .start();
                 if (nsv.getChildCount() > 0) {
                     View content = nsv.getChildAt(0);
                     content.animate()

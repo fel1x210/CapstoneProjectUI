@@ -1,5 +1,7 @@
 plugins {
     id("com.android.application")
+    kotlin("android")
+    kotlin("plugin.serialization")
 }
 
 android {
@@ -18,6 +20,10 @@ android {
         // Performance optimizations
         multiDexEnabled = true
         vectorDrawables.useSupportLibrary = true
+        
+        // Render script optimization
+        renderscriptTargetApi = 24
+        renderscriptSupportModeEnabled = true
     }
 
     buildTypes {
@@ -25,6 +31,11 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            
+            // Performance optimizations for release builds
+            ndk {
+                debugSymbolLevel = "SYMBOL_TABLE"
+            }
         }
         debug {
             // For development performance testing
@@ -34,14 +45,30 @@ android {
             applicationIdSuffix = ".debug"
         }
     }
+    
+    // Optimize dex compilation
+    dexOptions {
+        javaMaxHeapSize = "4g"
+        preDexLibraries = true
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
     
+    kotlinOptions {
+        jvmTarget = "11"
+    }
+    
     // Enable view binding for better performance
     buildFeatures {
         viewBinding = true
+    }
+    
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
     }
 }
 
@@ -73,4 +100,29 @@ dependencies {
     
     // Additional performance optimizations
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.4")
+    
+    // SwipeRefreshLayout
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+    
+    // Supabase Dependencies
+    implementation(platform("io.github.jan-tennert.supabase:bom:2.6.0"))
+    implementation("io.github.jan-tennert.supabase:postgrest-kt")
+    implementation("io.github.jan-tennert.supabase:storage-kt")
+    implementation("io.github.jan-tennert.supabase:gotrue-kt")
+    implementation("io.github.jan-tennert.supabase:realtime-kt")
+    
+    // Ktor client for Supabase
+    implementation("io.ktor:ktor-client-android:2.3.12")
+    implementation("io.ktor:ktor-client-core:2.3.12")
+    implementation("io.ktor:ktor-utils:2.3.12")
+    
+    // Kotlin Coroutines
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+    
+    // Image Loading - Glide with annotation processor for custom config
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
+    // Add kapt for Kotlin annotation processing
+    // Note: Glide's annotation processor works with annotationProcessor for now
 }
