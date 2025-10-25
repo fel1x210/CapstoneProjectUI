@@ -52,8 +52,8 @@ class SupabaseStorageRepository(private val context: Context) {
                 bitmap.recycle()
                 resizedBitmap.recycle()
                 
-                // Generate unique filename
-                val fileName = "avatar_${userId}_${UUID.randomUUID()}.jpg"
+                // Generate unique filename with user folder for better security
+                val fileName = "${userId}/avatar_${System.currentTimeMillis()}.jpg"
                 
                 // Upload to Supabase Storage
                 val bucket = client.storage[AVATARS_BUCKET]

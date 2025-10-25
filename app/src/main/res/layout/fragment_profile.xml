@@ -5,7 +5,9 @@
     android:layout_height="match_parent"
     android:background="@color/quiet_space_surface_alt"
     android:clipToPadding="false"
-    android:paddingBottom="24dp">
+    android:paddingBottom="24dp"
+    android:fillViewport="false"
+    android:scrollbars="none">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -95,7 +97,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:src="@drawable/ic_profile"
-                        app:tint="@android:color/white"
                         android:scaleType="centerCrop"
                         android:contentDescription="Profile avatar" />
                 </androidx.cardview.widget.CardView>

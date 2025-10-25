@@ -151,10 +151,10 @@ class SupabaseAuthHelper {
                     return@launch
                 }
                 
-                // Upload avatar
+                // Use updateUserAvatar which uploads AND updates the profile
                 val storageRepo = ca.gbc.comp3074.uiprototype.data.supabase.SupabaseStorageRepository(context)
                 val result = withContext(Dispatchers.IO) {
-                    storageRepo.uploadAvatar(userId, imageUri)
+                    storageRepo.updateUserAvatar(userId, imageUri)
                 }
                 result.onSuccess { avatarUrl ->
                     callback.onSuccess(avatarUrl)

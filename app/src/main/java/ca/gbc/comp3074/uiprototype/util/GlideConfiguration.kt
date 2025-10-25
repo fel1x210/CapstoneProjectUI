@@ -13,30 +13,35 @@ import com.bumptech.glide.module.AppGlideModule
 import com.bumptech.glide.request.RequestOptions
 
 /**
- * Custom Glide configuration for optimal image loading performance
+ * Custom Glide configuration optimized for 120 FPS performance
+ * Configures memory cache, disk cache, and image quality
  */
 @GlideModule
 class GlideConfiguration : AppGlideModule() {
     
     override fun applyOptions(context: Context, builder: GlideBuilder) {
-        // Set memory cache size (25% of available memory)
-        val memoryCacheSizeBytes = 1024 * 1024 * 20 // 20MB
+        // Increase memory cache size for ultra-smooth scrolling at high refresh rates
+        val memoryCacheSizeBytes = 1024 * 1024 * 50 // 50MB (increased from 20MB)
         builder.setMemoryCache(LruResourceCache(memoryCacheSizeBytes.toLong()))
         
-        // Set disk cache size (100MB)
-        val diskCacheSizeBytes = 1024 * 1024 * 100 // 100MB
+        // Increase disk cache size for better offline performance
+        val diskCacheSizeBytes = 1024 * 1024 * 250 // 250MB (increased from 100MB)
         builder.setDiskCache(InternalCacheDiskCacheFactory(context, diskCacheSizeBytes.toLong()))
         
-        // Set default request options
+        // Optimize for high refresh rate displays
         builder.setDefaultRequestOptions(
             RequestOptions()
-                .format(DecodeFormat.PREFER_RGB_565) // Use less memory
+                .format(DecodeFormat.PREFER_RGB_565) // 50% less memory than ARGB_8888
                 .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC) // Smart caching
+                .disallowHardwareConfig() // Better for frequent bitmap manipulation
         )
+        
+        // Reduce logging overhead for better performance
+        builder.setLogLevel(android.util.Log.ERROR)
     }
     
     override fun isManifestParsingEnabled(): Boolean {
-        // Disable manifest parsing for faster startup
+        // Disable manifest parsing for faster app startup
         return false
     }
 }

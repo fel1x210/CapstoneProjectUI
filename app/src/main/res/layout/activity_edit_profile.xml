@@ -64,7 +64,6 @@
                         android:layout_height="match_parent"
                         android:src="@drawable/ic_profile"
                         android:scaleType="centerCrop"
-                        app:tint="@android:color/white"
                         android:contentDescription="Profile avatar" />
                 </androidx.cardview.widget.CardView>
 

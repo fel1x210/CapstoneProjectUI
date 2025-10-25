@@ -33,8 +33,18 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Enable high refresh rate for smoother UI (120Hz support)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            getWindow().getAttributes().preferredDisplayModeId = getDisplay().getMode().getModeId();
+        }
+
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
+
+        // Optimize window for performance
+        getWindow().setBackgroundDrawable(null); // Remove window background overdraw
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -45,28 +55,58 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.navigation_home) {
-                if (homeFragment == null)
+                if (homeFragment == null) {
                     homeFragment = new HomeFragment();
+                    getSupportFragmentManager()
+                            .beginTransaction()
+                            .setReorderingAllowed(true)
+                            .add(R.id.fragment_container, homeFragment, "home")
+                            .commit();
+                }
                 switchFragment(homeFragment);
                 return true;
             } else if (itemId == R.id.navigation_search) {
-                if (searchFragment == null)
+                if (searchFragment == null) {
                     searchFragment = new SearchFragment();
+                    getSupportFragmentManager()
+                            .beginTransaction()
+                            .setReorderingAllowed(true)
+                            .add(R.id.fragment_container, searchFragment, "search")
+                            .commit();
+                }
                 switchFragment(searchFragment);
                 return true;
             } else if (itemId == R.id.navigation_community) {
-                if (communityFragment == null)
+                if (communityFragment == null) {
                     communityFragment = CommunityFragment.Companion.newInstance();
+                    getSupportFragmentManager()
+                            .beginTransaction()
+                            .setReorderingAllowed(true)
+                            .add(R.id.fragment_container, communityFragment, "community")
+                            .commit();
+                }
                 switchFragment(communityFragment);
                 return true;
             } else if (itemId == R.id.navigation_favorites) {
-                if (favoritesFragment == null)
+                if (favoritesFragment == null) {
                     favoritesFragment = new FavoritesFragment();
+                    getSupportFragmentManager()
+                            .beginTransaction()
+                            .setReorderingAllowed(true)
+                            .add(R.id.fragment_container, favoritesFragment, "favorites")
+                            .commit();
+                }
                 switchFragment(favoritesFragment);
                 return true;
             } else if (itemId == R.id.navigation_profile) {
-                if (profileFragment == null)
+                if (profileFragment == null) {
                     profileFragment = new ProfileFragment();
+                    getSupportFragmentManager()
+                            .beginTransaction()
+                            .setReorderingAllowed(true)
+                            .add(R.id.fragment_container, profileFragment, "profile")
+                            .commit();
+                }
                 switchFragment(profileFragment);
                 return true;
             }
@@ -82,15 +122,24 @@ public class MainActivity extends AppCompatActivity {
         if (fragment == activeFragment)
             return; // Don't reload same fragment
 
-        activeFragment = fragment;
-        getSupportFragmentManager()
+        // Use setReorderingAllowed for better performance
+        var transaction = getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.fragment_container, fragment)
-                .commitNow(); // Use commitNow() to avoid delays
-    }
+                .setReorderingAllowed(true);
 
-    public void navigateToProfile() {
-        bottomNavigationView.setSelectedItemId(R.id.navigation_profile);
+        if (homeFragment != null && homeFragment != fragment)
+            transaction.hide(homeFragment);
+        if (searchFragment != null && searchFragment != fragment)
+            transaction.hide(searchFragment);
+        if (communityFragment != null && communityFragment != fragment)
+            transaction.hide(communityFragment);
+        if (favoritesFragment != null && favoritesFragment != fragment)
+            transaction.hide(favoritesFragment);
+        if (profileFragment != null && profileFragment != fragment)
+            transaction.hide(profileFragment);
+
+        transaction.show(fragment).commit();
+        activeFragment = fragment;
     }
 
     @Override
@@ -107,6 +156,5 @@ public class MainActivity extends AppCompatActivity {
 
     public void navigateToSearch() {
         bottomNavigationView.setSelectedItemId(R.id.navigation_search);
-        switchFragment(searchFragment);
     }
 }

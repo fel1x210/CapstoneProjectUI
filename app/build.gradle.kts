@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     kotlin("android")
     kotlin("plugin.serialization")
+    kotlin("kapt") // Enable KAPT for Glide annotation processing
 }
 
 android {
@@ -17,13 +18,9 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         
-        // Performance optimizations
+        // Performance optimizations for high refresh rate
         multiDexEnabled = true
         vectorDrawables.useSupportLibrary = true
-        
-        // Render script optimization
-        renderscriptTargetApi = 24
-        renderscriptSupportModeEnabled = true
     }
 
     buildTypes {
@@ -46,11 +43,6 @@ android {
         }
     }
     
-    // Optimize dex compilation
-    dexOptions {
-        javaMaxHeapSize = "4g"
-        preDexLibraries = true
-    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -83,7 +75,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-livedata:2.8.4")
     implementation("androidx.lifecycle:lifecycle-viewmodel:2.8.4")
     implementation("androidx.room:room-runtime:2.6.1")
-    annotationProcessor("androidx.room:room-compiler:2.6.1")
+    kapt("androidx.room:room-compiler:2.6.1") // Use kapt for Room
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.3.0")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")
@@ -122,7 +114,5 @@ dependencies {
     
     // Image Loading - Glide with annotation processor for custom config
     implementation("com.github.bumptech.glide:glide:4.16.0")
-    annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
-    // Add kapt for Kotlin annotation processing
-    // Note: Glide's annotation processor works with annotationProcessor for now
+    kapt("com.github.bumptech.glide:compiler:4.16.0") // Use kapt for Kotlin projects
 }
