@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="100dp"
+    android:height="100dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+    
+    <!-- Background -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M0,0h100v100h-100z"/>
+    
+    <!-- Speech bubble -->
+    <path
+        android:fillColor="#5F9B9B"
+        android:pathData="M15,15 Q15,10 20,10 L70,10 Q75,10 75,15 L75,55 Q75,60 70,60 L20,60 Q15,60 15,55 L15,15 Z"/>
+    
+    <!-- Speech bubble tail -->
+    <path
+        android:fillColor="#5F9B9B"
+        android:pathData="M20,60 L10,70 L20,65 Z"/>
+    
+    <!-- Building roof -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M30,30 L40,20 L50,30 Z"/>
+    
+    <!-- Building body -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M28,30 L28,45 L52,45 L52,30 Z"/>
+    
+    <!-- Building base -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M26,45 L26,50 L54,50 L54,45 Z"/>
+    
+    <!-- Eyes -->
+    <path
+        android:fillColor="#5F9B9B"
+        android:pathData="M33,35 a2,2 0 1,1 0,4 a2,2 0 1,1 0,-4"/>
+    <path
+        android:fillColor="#5F9B9B"
+        android:pathData="M43,35 a2,2 0 1,1 0,4 a2,2 0 1,1 0,-4"/>
+    
+    <!-- Smile -->
+    <path
+        android:pathData="M35,42 Q40,46 45,42"
+        android:strokeWidth="2"
+        android:strokeColor="#5F9B9B"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"/>
+</vector>
