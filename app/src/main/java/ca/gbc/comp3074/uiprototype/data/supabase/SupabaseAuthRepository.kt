@@ -24,15 +24,46 @@ class SupabaseAuthRepository {
     suspend fun signUp(email: String, password: String, fullName: String): Result<UserProfile> {
         return withContext(Dispatchers.IO) {
             try {
+                Log.d(TAG, "Starting signup process for: $email")
+                
                 // Create auth user
                 client.auth.signUpWith(Email) {
                     this.email = email
                     this.password = password
                 }
                 
-                // Get user ID from the current session after signup
-                val userId = client.auth.currentUserOrNull()?.id 
-                    ?: throw Exception("User ID not found after signup")
+                Log.d(TAG, "Auth signup completed, checking for user session...")
+                
+                // Small delay to ensure session is established
+                kotlinx.coroutines.delay(500)
+                
+                // Get user ID from current session
+                val userId = client.auth.currentUserOrNull()?.id
+                
+                if (userId == null) {
+                    Log.w(TAG, "User ID not immediately available - may need email confirmation")
+                    throw Exception("User ID not found after signup.\n\nPlease:\n1. Disable email confirmation in Supabase\n2. Or check your email to confirm")
+                }
+                
+                Log.d(TAG, "Got user ID: $userId")
+                
+                // Check if profile already exists (in case of retry)
+                try {
+                    val existingProfile = client.postgrest["profiles"]
+                        .select(columns = Columns.ALL) {
+                            filter {
+                                eq("id", userId)
+                            }
+                        }
+                        .decodeSingleOrNull<UserProfile>()
+                    
+                    if (existingProfile != null) {
+                        Log.d(TAG, "Profile already exists, returning existing profile")
+                        return@withContext Result.success(existingProfile)
+                    }
+                } catch (e: Exception) {
+                    Log.d(TAG, "No existing profile found, creating new one")
+                }
                 
                 // Create profile in database
                 val profile = UserProfile(
@@ -44,12 +75,28 @@ class SupabaseAuthRepository {
                     followersCount = 0
                 )
                 
+                Log.d(TAG, "Inserting profile into database...")
                 client.postgrest["profiles"].insert(profile)
                 
+                Log.d(TAG, "Signup completed successfully!")
                 Result.success(profile)
             } catch (e: Exception) {
-                Log.e(TAG, "Sign up error", e)
-                Result.failure(e)
+                Log.e(TAG, "Sign up error: ${e.message}", e)
+                
+                // Provide more helpful error messages
+                val errorMessage = when {
+                    e.message?.contains("JWT", ignoreCase = true) == true -> 
+                        "Authentication error. Please disable email confirmation in Supabase settings."
+                    e.message?.contains("profiles", ignoreCase = true) == true -> 
+                        "Database error. Please ensure the 'profiles' table exists in Supabase."
+                    e.message?.contains("duplicate", ignoreCase = true) == true -> 
+                        "Account already exists. Please try logging in."
+                    e.message?.contains("not found after signup", ignoreCase = true) == true ->
+                        e.message // Use the detailed message we provided
+                    else -> e.message ?: "Unknown error occurred"
+                }
+                
+                Result.failure(Exception(errorMessage))
             }
         }
     }
