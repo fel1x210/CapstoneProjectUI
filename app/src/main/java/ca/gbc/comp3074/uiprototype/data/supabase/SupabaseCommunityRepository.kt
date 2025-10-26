@@ -212,13 +212,13 @@ class SupabaseCommunityRepository(private val context: Context) {
         try {
             val currentUserId = SupabaseClientManager.getCurrentUserId()
                 ?: return@withContext Result.failure(Exception("User not authenticated"))
-            
+
             // Get current user profile
             val authRepository = SupabaseAuthRepository()
             val profileResult = authRepository.getCurrentUserProfile()
             val userName = profileResult.getOrNull()?.fullName ?: "Anonymous"
             val userAvatarUrl = profileResult.getOrNull()?.avatarUrl
-            
+
             // Create comment
             val newComment = PostComment(
                 id = UUID.randomUUID().toString(),
@@ -230,10 +230,11 @@ class SupabaseCommunityRepository(private val context: Context) {
                 rating = rating,
                 createdAt = System.currentTimeMillis()
             )
-            
+
+            // Insert comment into Supabase
             client.postgrest["post_comments"].insert(newComment)
-            
-            // Increment comments count - fetch current post first
+
+            // ✅ Increment comments count for the post
             val currentPost = client.postgrest["community_posts"]
                 .select(Columns.ALL) {
                     filter {
@@ -241,14 +242,15 @@ class SupabaseCommunityRepository(private val context: Context) {
                     }
                 }
                 .decodeSingle<CommunityPost>()
-            
+
             val updatedPost = currentPost.copy(commentsCount = currentPost.commentsCount + 1)
+
             client.postgrest["community_posts"].update(updatedPost) {
                 filter {
                     eq("id", postId)
                 }
             }
-            
+
             Log.d(TAG, "Comment added successfully to post $postId")
             Result.success(newComment)
         } catch (e: Exception) {
