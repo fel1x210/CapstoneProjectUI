@@ -135,8 +135,6 @@ class PostCommentsActivity : AppCompatActivity() {
                     
                     // Reload comments
                     loadComments()
-                    communityRepository.incrementCommentCount(postId)
-
                     Toast.makeText(
                         this@PostCommentsActivity,
                         "Comment added!",
