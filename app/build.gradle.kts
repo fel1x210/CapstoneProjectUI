@@ -1,8 +1,8 @@
 plugins {
     id("com.android.application")
-    kotlin("android")
-    kotlin("plugin.serialization")
-    kotlin("kapt") // Enable KAPT for Glide annotation processing
+    id("org.jetbrains.kotlin.android")
+    id("org.jetbrains.kotlin.plugin.serialization")
+    id("kotlin-kapt")
 }
 
 android {
