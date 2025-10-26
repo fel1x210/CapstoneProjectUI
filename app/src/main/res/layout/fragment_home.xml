@@ -114,101 +114,44 @@
     </FrameLayout>
 
     <!-- Bottom Sheet for Featured QuietSpaces -->
-    <LinearLayout
-        android:id="@+id/bottomSheet"
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/nearbyLocationsCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="100dp"
-        android:background="@drawable/bg_bottom_sheet"
-        android:elevation="12dp"
-        android:orientation="vertical"
-        android:padding="20dp">
+        app:cardBackgroundColor="@android:color/white"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="8dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:text="Featured QuietSpaces"
-            android:textColor="#333333"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:fontFamily="sans-serif" />
-
-        <!-- Featured Place Card -->
         <LinearLayout
-            android:id="@+id/featuredPlaceCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_place_card"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:padding="16dp">
 
-            <ImageView
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:layout_marginEnd="16dp"
-                android:background="@drawable/bg_image_placeholder"
-                android:scaleType="centerCrop" />
-
-            <LinearLayout
-                android:layout_width="0dp"
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
+                android:layout_marginBottom="12dp"
+                android:text="Featured QuietSpaces"
+                android:textColor="#333333"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:fontFamily="sans-serif" />
 
-                <TextView
-                    android:id="@+id/placeName"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="The Quiet Corner"
-                    android:textColor="#333333"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:fontFamily="sans-serif" />
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/nearbyLocationsRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:clipToPadding="false"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp" />
 
-                <TextView
-                    android:id="@+id/placeType"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:text="Cafe • 0.5 mi away"
-                    android:textColor="#666666"
-                    android:textSize="14sp"
-                    android:fontFamily="sans-serif" />
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="★★★★"
-                        android:textColor="#FFB300"
-                        android:textSize="14sp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="4dp"
-                        android:text="Library • 1.2 mi away"
-                        android:textColor="#666666"
-                        android:textSize="12sp" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_arrow_right"
-                app:tint="#999999" />
         </LinearLayout>
-    </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
 </RelativeLayout>

@@ -264,4 +264,11 @@ public class PrivacySettingsActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+    
+    @Override
+    public void finish() {
+        super.finish();
+        // Add smooth exit transition
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+    }
 }

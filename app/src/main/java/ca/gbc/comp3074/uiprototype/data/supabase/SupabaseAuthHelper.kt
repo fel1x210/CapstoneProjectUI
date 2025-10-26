@@ -72,6 +72,22 @@ class SupabaseAuthHelper {
             }
         }
     }
+    
+    /**
+     * Check if user is currently logged in (with callback for async handling)
+     */
+    fun checkIfUserLoggedIn(callback: (Boolean) -> Unit) {
+        CoroutineScope(Dispatchers.Main).launch {
+            try {
+                val isLoggedIn = withContext(Dispatchers.IO) {
+                    SupabaseClientManager.isUserAuthenticated()
+                }
+                callback(isLoggedIn)
+            } catch (e: Exception) {
+                callback(false)
+            }
+        }
+    }
 
     fun getCurrentUserProfile(callback: AuthCallback) {
         CoroutineScope(Dispatchers.Main).launch {

@@ -42,13 +42,17 @@
             android:id="@+id/welcomeSubtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Welcome back!"
-            android:textSize="28sp"
+            android:text="Welcome back,"
+            android:textSize="32sp"
             android:textColor="@android:color/white"
             android:textStyle="bold"
             android:gravity="center"
             android:alpha="0"
-            android:layout_marginBottom="16dp" />
+            android:shadowColor="#80000000"
+            android:shadowDx="0"
+            android:shadowDy="2"
+            android:shadowRadius="4"
+            android:layout_marginBottom="8dp" />
 
         <!-- User name text -->
         <TextView
@@ -56,10 +60,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="User"
-            android:textSize="22sp"
-            android:textColor="#E0FFFFFF"
+            android:textSize="36sp"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
             android:gravity="center"
-            android:alpha="0" />
+            android:alpha="0"
+            android:shadowColor="#80000000"
+            android:shadowDx="0"
+            android:shadowDy="2"
+            android:shadowRadius="4" />
 
     </LinearLayout>
 

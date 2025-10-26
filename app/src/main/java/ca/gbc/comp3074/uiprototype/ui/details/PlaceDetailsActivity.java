@@ -116,14 +116,12 @@ public class PlaceDetailsActivity extends AppCompatActivity {
         // Handle back button clicks
         toolbar.setNavigationOnClickListener(v -> {
             finish();
-            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         });
     }
 
     @Override
     public boolean onSupportNavigateUp() {
         finish();
-        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         return true;
     }
 
@@ -363,5 +361,12 @@ public class PlaceDetailsActivity extends AppCompatActivity {
             // Toggle favorite status
             Toast.makeText(this, "Added to favorites", Toast.LENGTH_SHORT).show();
         });
+    }
+    
+    @Override
+    public void finish() {
+        super.finish();
+        // Add smooth exit transition
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
     }
 }

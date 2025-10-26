@@ -230,6 +230,7 @@ public class RegisterActivity extends AppCompatActivity {
                 .setPositiveButton(android.R.string.ok, (dialog, which) -> {
                     Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
                     startActivity(intent);
+                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
                     finish();
                 })
                 .show();
@@ -237,5 +238,12 @@ public class RegisterActivity extends AppCompatActivity {
 
     private String textOrEmpty(TextInputEditText editText) {
         return editText.getText() != null ? editText.getText().toString().trim() : "";
+    }
+    
+    @Override
+    public void finish() {
+        super.finish();
+        // Add smooth exit transition
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
     }
 }

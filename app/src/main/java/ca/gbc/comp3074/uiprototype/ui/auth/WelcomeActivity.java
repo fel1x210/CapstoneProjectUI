@@ -15,6 +15,8 @@ import androidx.cardview.widget.CardView;
 import com.google.android.material.button.MaterialButton;
 
 import ca.gbc.comp3074.uiprototype.R;
+import ca.gbc.comp3074.uiprototype.data.supabase.SupabaseAuthHelper;
+import ca.gbc.comp3074.uiprototype.data.supabase.SupabaseClientManager;
 import ca.gbc.comp3074.uiprototype.ui.main.MainActivity;
 
 public class WelcomeActivity extends AppCompatActivity {
@@ -26,15 +28,41 @@ public class WelcomeActivity extends AppCompatActivity {
     private TextView textFooter;
     private MaterialButton buttonSignUp;
     private MaterialButton buttonLogin;
+    private SupabaseAuthHelper authHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        // Initialize Supabase first
+        SupabaseClientManager.INSTANCE.initialize();
+        authHelper = new SupabaseAuthHelper();
+        
+        // Show welcome screen (auto-login disabled)
         setContentView(R.layout.activity_welcome);
-
+        
+        // Always show welcome screen with animations
         initViews();
         setupInteractions();
         animateEntrance();
+        
+        /* AUTO-LOGIN DISABLED FOR TESTING
+        // Check if user is already logged in (async)
+        authHelper.checkIfUserLoggedIn(isLoggedIn -> {
+            if (isLoggedIn) {
+                // User is already authenticated, go directly to MainActivity
+                Intent intent = new Intent(WelcomeActivity.this, MainActivity.class);
+                startActivity(intent);
+                finish();
+            } else {
+                // User not logged in, show welcome screen with animations
+                initViews();
+                setupInteractions();
+                animateEntrance();
+            }
+            return null; // Required for Kotlin Unit lambda
+        });
+        */
     }
 
     private void initViews() {
@@ -51,11 +79,13 @@ public class WelcomeActivity extends AppCompatActivity {
         buttonSignUp.setOnClickListener(v -> playButtonPressAnimation(buttonSignUp, () -> {
             Intent intent = new Intent(WelcomeActivity.this, RegisterActivity.class);
             startActivity(intent);
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
         }));
 
         buttonLogin.setOnClickListener(v -> playButtonPressAnimation(buttonLogin, () -> {
             Intent intent = new Intent(WelcomeActivity.this, LoginActivity.class);
             startActivity(intent);
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
         }));
     }
 

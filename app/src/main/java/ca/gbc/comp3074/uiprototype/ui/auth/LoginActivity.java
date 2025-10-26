@@ -225,7 +225,14 @@ public class LoginActivity extends AppCompatActivity {
         startActivity(intent);
         finish();
 
-        // Use fade transition for smooth effect
-        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        // Use smooth custom transition
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+    }
+    
+    @Override
+    public void finish() {
+        super.finish();
+        // Add smooth exit transition
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
     }
 }

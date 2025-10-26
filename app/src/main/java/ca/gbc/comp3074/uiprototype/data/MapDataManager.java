@@ -42,11 +42,16 @@ public class MapDataManager {
     private LatLng currentLocation;
 
     public MapDataManager(Context context) {
-        placeRepository = new PlaceRepository((android.app.Application) context.getApplicationContext());
-        placesService = new GooglePlacesService();
-        
-        // Set default location (Toronto) if no current location
-        currentLocation = new LatLng(43.6532, -79.3832);
+        try {
+            placeRepository = new PlaceRepository((android.app.Application) context.getApplicationContext());
+            placesService = new GooglePlacesService();
+            
+            // Set default location (Toronto) if no current location
+            currentLocation = new LatLng(43.6532, -79.3832);
+        } catch (Exception e) {
+            Log.e(TAG, "Error initializing MapDataManager", e);
+            throw new RuntimeException("Failed to initialize MapDataManager: " + e.getMessage(), e);
+        }
     }
 
     public LiveData<List<PlaceEntity>> getPlaces() {

@@ -57,6 +57,9 @@ public class WelcomeAnimationActivity extends AppCompatActivity {
         if (userName == null || userName.isEmpty()) {
             userName = "User";
         }
+        
+        // Log for debugging
+        android.util.Log.d("WelcomeAnimation", "User Name: " + userName + ", First Time: " + isFirstTime);
 
         // Prepare animation
         setupAnimation(userName, isFirstTime);
@@ -72,13 +75,14 @@ public class WelcomeAnimationActivity extends AppCompatActivity {
         // Set the text to shuffle
         shuffleTextView.setText("WELCOME TO QUIETSPACE");
 
-        // Set subtitle and username
+        // Set subtitle and username with better formatting
         if (isFirstTime) {
             subtitleTextView.setText("Hello, " + userName + "! 👋");
             userNameTextView.setText("Let's find your perfect quiet space");
         } else {
-            subtitleTextView.setText("Welcome back!");
-            userNameTextView.setText(userName);
+            // For returning users, show: "Welcome back, [Name]!"
+            subtitleTextView.setText("Welcome back,");
+            userNameTextView.setText(userName + "! 🎉");
         }
 
         // Start the animation sequence
@@ -100,24 +104,26 @@ public class WelcomeAnimationActivity extends AppCompatActivity {
 
         // Fade in subtitle (after shuffle starts + 1200ms)
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            AlphaAnimation fadeIn = new AlphaAnimation(0f, 1f);
-            fadeIn.setDuration(600);
-            fadeIn.setFillAfter(true);
-            subtitleTextView.startAnimation(fadeIn);
+            subtitleTextView.setAlpha(0f);
+            subtitleTextView.animate()
+                    .alpha(1f)
+                    .setDuration(600)
+                    .start();
         }, 1600);
 
         // Fade in username (after subtitle + 500ms)
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            AlphaAnimation fadeIn = new AlphaAnimation(0f, 1f);
-            fadeIn.setDuration(600);
-            fadeIn.setFillAfter(true);
-            userNameTextView.startAnimation(fadeIn);
+            userNameTextView.setAlpha(0f);
+            userNameTextView.animate()
+                    .alpha(1f)
+                    .setDuration(600)
+                    .start();
         }, 2100);
 
-        // Navigate to MainActivity after animation completes (4500ms total)
+        // Navigate to MainActivity after animation completes (6000ms total - gives more time to see name)
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             navigateToMainActivity();
-        }, 4500);
+        }, 6000);
     }
 
     private void navigateToMainActivity() {
