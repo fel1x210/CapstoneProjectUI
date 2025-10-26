@@ -40,7 +40,11 @@ public class FavoritesFragment extends Fragment {
         TextView statReviews = view.findViewById(R.id.textStatReviews);
         MaterialButton buttonExplore = view.findViewById(R.id.buttonExplore);
 
+        // RecyclerView optimizations
         favoritesList.setLayoutManager(new LinearLayoutManager(requireContext()));
+        favoritesList.setHasFixedSize(true);
+        favoritesList.setItemViewCacheSize(20);
+
         FavoritesAdapter adapter = new FavoritesAdapter();
         favoritesList.setAdapter(adapter);
 

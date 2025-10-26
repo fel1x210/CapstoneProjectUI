@@ -135,7 +135,7 @@ class CommunityFragment : Fragment() {
             
             // Performance optimizations
             itemAnimator = null // Disable item animations for smoother scrolling
-            setItemViewCacheSize(10) // Cache 10 off-screen items
+            setItemViewCacheSize(20) // Cache 20 off-screen items
             isNestedScrollingEnabled = true
         }
     }

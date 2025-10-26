@@ -1,8 +1,9 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+    <!-- Base application theme with performance optimizations -->
     <style name="Base.Theme.UIPrototype" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <!-- Remove window background for better performance (set in layouts instead) -->
+        <item name="android:windowBackground">@null</item>
+        <item name="android:windowDisablePreview">true</item>
     </style>
 
     <style name="Theme.UIPrototype" parent="Base.Theme.UIPrototype" />

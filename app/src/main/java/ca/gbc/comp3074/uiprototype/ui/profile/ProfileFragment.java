@@ -49,6 +49,7 @@ public class ProfileFragment extends Fragment {
 
         private SupabaseAuthHelper authHelper;
         private Uri cameraImageUri;
+        private boolean isInitialLoad = true;
 
         // Activity result launchers for camera and gallery
         private ActivityResultLauncher<Intent> cameraLauncher;
@@ -148,6 +149,22 @@ public class ProfileFragment extends Fragment {
                 animateEntrance(headerBar, profileCard, quickActionsCard, recentActivityCard, settingsCard);
         }
 
+        @Override
+        public void onResume() {
+                super.onResume();
+
+                // Skip reloading on initial resume (already loaded in onViewCreated)
+                if (isInitialLoad) {
+                        isInitialLoad = false;
+                        return;
+                }
+
+                // Reinitialize Supabase client to restore session after returning from photo
+                // picker
+                SupabaseClientManager.INSTANCE.initialize();
+                loadUserProfile();
+        }
+
         private void loadUserProfile() {
                 // Get current user profile from Supabase
                 authHelper.getCurrentUserProfile(new SupabaseAuthHelper.AuthCallback() {
@@ -160,6 +177,20 @@ public class ProfileFragment extends Fragment {
                                 if (profileEmail != null && profile.getEmail() != null) {
                                         profileEmail.setText(profile.getEmail());
                                         profileEmail.setVisibility(View.VISIBLE);
+                                }
+
+                                // Load avatar if available
+                                if (profile.getAvatarUrl() != null && !profile.getAvatarUrl().isEmpty()) {
+                                        // Use efficient caching for smooth performance
+                                        Glide.with(requireContext())
+                                                        .load(profile.getAvatarUrl())
+                                                        .circleCrop()
+                                                        .placeholder(R.drawable.ic_profile)
+                                                        .error(R.drawable.ic_profile)
+                                                        .into(profileAvatar);
+                                } else {
+                                        // Set default avatar if no avatar URL
+                                        profileAvatar.setImageResource(R.drawable.ic_profile);
                                 }
 
                                 // Hide stats for new users (no activity yet)
@@ -196,44 +227,57 @@ public class ProfileFragment extends Fragment {
 
         private void animateEntrance(View headerBar, View profileCard, View quickActionsCard,
                         View recentActivityCard, View settingsCard) {
+                // Use hardware layer for smoother animations
+                headerBar.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+                profileCard.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+                quickActionsCard.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+                recentActivityCard.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+                settingsCard.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+
                 headerBar.post(() -> {
                         headerBar.animate()
                                         .alpha(1f)
                                         .translationY(0f)
-                                        .setDuration(600)
+                                        .setDuration(400)
                                         .setInterpolator(new android.view.animation.DecelerateInterpolator())
+                                        .withEndAction(() -> headerBar.setLayerType(View.LAYER_TYPE_NONE, null))
                                         .start();
 
                         profileCard.animate()
                                         .alpha(1f)
                                         .translationY(0f)
-                                        .setStartDelay(120)
-                                        .setDuration(650)
+                                        .setStartDelay(80)
+                                        .setDuration(400)
                                         .setInterpolator(new android.view.animation.DecelerateInterpolator())
+                                        .withEndAction(() -> profileCard.setLayerType(View.LAYER_TYPE_NONE, null))
                                         .start();
 
                         quickActionsCard.animate()
                                         .alpha(1f)
                                         .translationY(0f)
-                                        .setStartDelay(200)
-                                        .setDuration(650)
+                                        .setStartDelay(140)
+                                        .setDuration(400)
                                         .setInterpolator(new android.view.animation.DecelerateInterpolator())
+                                        .withEndAction(() -> quickActionsCard.setLayerType(View.LAYER_TYPE_NONE, null))
                                         .start();
 
                         recentActivityCard.animate()
                                         .alpha(1f)
                                         .translationY(0f)
-                                        .setStartDelay(280)
-                                        .setDuration(650)
+                                        .setStartDelay(200)
+                                        .setDuration(400)
                                         .setInterpolator(new android.view.animation.DecelerateInterpolator())
+                                        .withEndAction(() -> recentActivityCard.setLayerType(View.LAYER_TYPE_NONE,
+                                                        null))
                                         .start();
 
                         settingsCard.animate()
                                         .alpha(1f)
                                         .translationY(0f)
-                                        .setStartDelay(360)
-                                        .setDuration(650)
+                                        .setStartDelay(260)
+                                        .setDuration(400)
                                         .setInterpolator(new android.view.animation.DecelerateInterpolator())
+                                        .withEndAction(() -> settingsCard.setLayerType(View.LAYER_TYPE_NONE, null))
                                         .start();
                 });
         }
@@ -421,10 +465,11 @@ public class ProfileFragment extends Fragment {
                 authHelper.uploadAvatar(requireContext(), imageUri, new SupabaseAuthHelper.AvatarCallback() {
                         @Override
                         public void onSuccess(String avatarUrl) {
-                                // Load the image with Glide
+                                // Load the newly uploaded avatar with efficient caching
                                 Glide.with(requireContext())
                                                 .load(avatarUrl)
                                                 .circleCrop()
+                                                .placeholder(R.drawable.ic_profile)
                                                 .into(profileAvatar);
                                 Toast.makeText(requireContext(), "Avatar updated successfully!", Toast.LENGTH_SHORT)
                                                 .show();

@@ -44,6 +44,7 @@ public class EditProfileActivity extends AppCompatActivity {
     private Uri cameraImageUri;
     private String currentAvatarUrl;
     private Uri newAvatarUri;
+    private boolean isInitialLoad = true;
 
     private ActivityResultLauncher<Intent> cameraLauncher;
     private ActivityResultLauncher<Intent> galleryLauncher;
@@ -70,6 +71,22 @@ public class EditProfileActivity extends AppCompatActivity {
         setupActivityResultLaunchers();
         loadCurrentProfile();
         setupClickListeners();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // Skip reloading on initial resume (already loaded in onCreate)
+        if (isInitialLoad) {
+            isInitialLoad = false;
+            return;
+        }
+
+        // Reinitialize Supabase client to restore session after returning from photo
+        // picker
+        SupabaseClientManager.INSTANCE.initialize();
+        loadCurrentProfile();
     }
 
     private void initializeViews() {
@@ -120,18 +137,25 @@ public class EditProfileActivity extends AppCompatActivity {
                     currentAvatarUrl = profile.getAvatarUrl();
 
                     if (currentAvatarUrl != null && !currentAvatarUrl.isEmpty()) {
+                        // Use efficient caching for smooth performance
                         Glide.with(EditProfileActivity.this)
                                 .load(currentAvatarUrl)
+                                .circleCrop()
                                 .placeholder(R.drawable.ic_profile)
+                                .error(R.drawable.ic_profile)
                                 .into(profileAvatar);
+                    } else {
+                        profileAvatar.setImageResource(R.drawable.ic_profile);
                     }
                 });
             }
 
             @Override
             public void onError(String error) {
-                runOnUiThread(() -> Toast
-                        .makeText(EditProfileActivity.this, "Failed to load profile", Toast.LENGTH_SHORT).show());
+                runOnUiThread(() -> {
+                    android.util.Log.e("EditProfileActivity", "Load profile error: " + error);
+                    Toast.makeText(EditProfileActivity.this, "Failed to load profile", Toast.LENGTH_SHORT).show();
+                });
             }
         });
     }
@@ -189,6 +213,7 @@ public class EditProfileActivity extends AppCompatActivity {
     private void displayAvatar(Uri imageUri) {
         Glide.with(this)
                 .load(imageUri)
+                .circleCrop()
                 .placeholder(R.drawable.ic_profile)
                 .into(profileAvatar);
     }

@@ -2,6 +2,7 @@ package ca.gbc.comp3074.uiprototype;
 
 import android.app.Application;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.StrictMode;
 import android.util.Log;
 
