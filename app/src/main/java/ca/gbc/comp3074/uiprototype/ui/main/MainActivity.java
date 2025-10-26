@@ -57,55 +57,30 @@ public class MainActivity extends AppCompatActivity {
             if (itemId == R.id.navigation_home) {
                 if (homeFragment == null) {
                     homeFragment = new HomeFragment();
-                    getSupportFragmentManager()
-                            .beginTransaction()
-                            .setReorderingAllowed(true)
-                            .add(R.id.fragment_container, homeFragment, "home")
-                            .commit();
                 }
                 switchFragment(homeFragment);
                 return true;
             } else if (itemId == R.id.navigation_search) {
                 if (searchFragment == null) {
                     searchFragment = new SearchFragment();
-                    getSupportFragmentManager()
-                            .beginTransaction()
-                            .setReorderingAllowed(true)
-                            .add(R.id.fragment_container, searchFragment, "search")
-                            .commit();
                 }
                 switchFragment(searchFragment);
                 return true;
             } else if (itemId == R.id.navigation_community) {
                 if (communityFragment == null) {
                     communityFragment = CommunityFragment.Companion.newInstance();
-                    getSupportFragmentManager()
-                            .beginTransaction()
-                            .setReorderingAllowed(true)
-                            .add(R.id.fragment_container, communityFragment, "community")
-                            .commit();
                 }
                 switchFragment(communityFragment);
                 return true;
             } else if (itemId == R.id.navigation_favorites) {
                 if (favoritesFragment == null) {
                     favoritesFragment = new FavoritesFragment();
-                    getSupportFragmentManager()
-                            .beginTransaction()
-                            .setReorderingAllowed(true)
-                            .add(R.id.fragment_container, favoritesFragment, "favorites")
-                            .commit();
                 }
                 switchFragment(favoritesFragment);
                 return true;
             } else if (itemId == R.id.navigation_profile) {
                 if (profileFragment == null) {
                     profileFragment = new ProfileFragment();
-                    getSupportFragmentManager()
-                            .beginTransaction()
-                            .setReorderingAllowed(true)
-                            .add(R.id.fragment_container, profileFragment, "profile")
-                            .commit();
                 }
                 switchFragment(profileFragment);
                 return true;
@@ -138,21 +113,6 @@ public class MainActivity extends AppCompatActivity {
         }
         
         transaction.commitNowAllowingStateLoss(); // Use commitNowAllowingStateLoss for better performance
-        activeFragment = fragment;
-    }
-
-        if (homeFragment != null && homeFragment != fragment)
-            transaction.hide(homeFragment);
-        if (searchFragment != null && searchFragment != fragment)
-            transaction.hide(searchFragment);
-        if (communityFragment != null && communityFragment != fragment)
-            transaction.hide(communityFragment);
-        if (favoritesFragment != null && favoritesFragment != fragment)
-            transaction.hide(favoritesFragment);
-        if (profileFragment != null && profileFragment != fragment)
-            transaction.hide(profileFragment);
-
-        transaction.show(fragment).commit();
         activeFragment = fragment;
     }
 
