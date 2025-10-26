@@ -46,11 +46,6 @@ android {
         }
     }
     
-    // Optimize dex compilation
-    dexOptions {
-        javaMaxHeapSize = "4g"
-        preDexLibraries = true
-    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11

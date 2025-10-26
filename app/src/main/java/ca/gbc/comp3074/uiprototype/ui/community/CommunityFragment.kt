@@ -39,6 +39,9 @@ class CommunityFragment : Fragment() {
     private lateinit var communityRepository: SupabaseCommunityRepository
     private lateinit var adapter: CommunityPostAdapter
     
+    private var needsRefresh = false
+    private var isFirstLoad = true
+    
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -74,6 +77,8 @@ class CommunityFragment : Fragment() {
         // Setup FAB
         fabCreatePost.setOnClickListener {
             val intent = Intent(requireContext(), CreatePostActivity::class.java)
+            // Mark that we need to refresh when returning (new post created)
+            needsRefresh = true
             startActivity(intent)
         }
         
@@ -83,8 +88,22 @@ class CommunityFragment : Fragment() {
     
     override fun onResume() {
         super.onResume()
-        // Reload posts when returning to fragment
-        loadPosts()
+        // Reload if:
+        // 1. First load (adapter not initialized or empty)
+        // 2. Returning from activity that modified data (needsRefresh flag)
+        if (isFirstLoad || !::adapter.isInitialized || adapter.itemCount == 0 || needsRefresh) {
+            loadPosts()
+            needsRefresh = false
+            isFirstLoad = false
+        }
+    }
+    
+    override fun onPause() {
+        super.onPause()
+        // Set flag to refresh when coming back (user might have interacted with posts)
+        if (::adapter.isInitialized && adapter.itemCount > 0) {
+            needsRefresh = true
+        }
     }
     
     private fun setupToolbar() {
@@ -157,8 +176,17 @@ class CommunityFragment : Fragment() {
         lifecycleScope.launch {
             communityRepository.toggleLike(post.id)
                 .onSuccess { isLiked ->
-                    // Reload posts to get updated counts
-                    loadPosts()
+                    // Update the post in the adapter immediately for instant feedback
+                    val updatedPost = post.copy(
+                        likesCount = if (isLiked) post.likesCount + 1 else post.likesCount - 1,
+                        isLikedByCurrentUser = isLiked
+                    )
+                    updatePostInAdapter(updatedPost)
+                    
+                    // Also schedule a full refresh to ensure accuracy
+                    android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                        loadPosts()
+                    }, 500)
                 }
                 .onFailure { error ->
                     Toast.makeText(
@@ -170,10 +198,21 @@ class CommunityFragment : Fragment() {
         }
     }
     
+    private fun updatePostInAdapter(updatedPost: CommunityPost) {
+        val currentList = adapter.currentList.toMutableList()
+        val index = currentList.indexOfFirst { it.id == updatedPost.id }
+        if (index != -1) {
+            currentList[index] = updatedPost
+            adapter.submitList(currentList)
+        }
+    }
+    
     private fun showCommentsDialog(post: CommunityPost) {
         val intent = Intent(requireContext(), PostCommentsActivity::class.java)
         intent.putExtra("POST_ID", post.id)
         intent.putExtra("POST_PLACE_NAME", post.placeName)
+        // Mark that we need to refresh when returning
+        needsRefresh = true
         startActivity(intent)
     }
     
