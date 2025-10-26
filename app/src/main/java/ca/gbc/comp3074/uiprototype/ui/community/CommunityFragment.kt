@@ -92,7 +92,8 @@ class CommunityFragment : Fragment() {
         // 1. First load (adapter not initialized or empty)
         // 2. Returning from activity that modified data (needsRefresh flag)
         if (isFirstLoad || !::adapter.isInitialized || adapter.itemCount == 0 || needsRefresh) {
-            loadPosts()
+            // Always sync counts when returning from comments or first load
+            loadPosts(syncCounts = true)
             needsRefresh = false
             isFirstLoad = false
         }
