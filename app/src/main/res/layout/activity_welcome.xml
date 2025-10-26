@@ -61,7 +61,7 @@
                 android:layout_marginTop="40dp"
                 android:layout_gravity="center_horizontal"
                 android:alpha="0"
-                android:background="@drawable/bg_soft_card"
+                android:src="@drawable/logo_quietspace"
                 android:contentDescription="@string/welcome_headline"
                 android:scaleType="centerCrop" />
 
