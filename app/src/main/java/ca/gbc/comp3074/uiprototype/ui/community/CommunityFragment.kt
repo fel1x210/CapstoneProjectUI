@@ -82,8 +82,8 @@ class CommunityFragment : Fragment() {
             startActivity(intent)
         }
         
-        // Load initial data
-        loadPosts()
+        // Load initial data with count sync on first load
+        loadPosts(syncCounts = true)
     }
     
     override fun onResume() {
@@ -110,7 +110,8 @@ class CommunityFragment : Fragment() {
         toolbar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.action_refresh -> {
-                    loadPosts()
+                    // Force sync counts on manual refresh
+                    loadPosts(syncCounts = true)
                     true
                 }
                 else -> false
@@ -138,7 +139,7 @@ class CommunityFragment : Fragment() {
         }
     }
     
-    private fun loadPosts() {
+    private fun loadPosts(syncCounts: Boolean = false) {
         swipeRefresh.isRefreshing = true
         
         lifecycleScope.launch {
@@ -147,6 +148,18 @@ class CommunityFragment : Fragment() {
             val userId = SupabaseClientManager.getCurrentUserId()
             Log.d(TAG, "Loading posts - Authenticated: $isAuthenticated, UserId: $userId")
             
+            // Sync counts if requested (manual refresh or first load with mismatches)
+            if (syncCounts) {
+                Log.d(TAG, "Syncing post counts...")
+                try {
+                    communityRepository.syncPostCounts().getOrThrow()
+                    Log.d(TAG, "Post counts synced successfully")
+                } catch (error: Exception) {
+                    Log.e(TAG, "Failed to sync counts: ${error.message}")
+                }
+            }
+            
+            // Load posts AFTER sync is complete
             communityRepository.getPosts()
                 .onSuccess { posts ->
                     swipeRefresh.isRefreshing = false
