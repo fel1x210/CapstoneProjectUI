@@ -80,7 +80,7 @@ class PostCommentsActivity : AppCompatActivity() {
         ratingBar.setOnRatingBarChangeListener { _, rating, _ ->
             tvRating.text = String.format("%.1f", rating)
         }
-        tvRating.text = String.format("%.1f", ratingBar.rating)
+        tvRating.text = "0.0"
         
         // Setup send button
         fabSendComment.setOnClickListener {
@@ -131,7 +131,8 @@ class PostCommentsActivity : AppCompatActivity() {
                 .onSuccess {
                     // Clear input
                     etComment.text?.clear()
-                    ratingBar.rating = 5f
+                    ratingBar.rating = 0f
+                    tvRating.text = "0.0"
                     
                     // Reload comments
                     loadComments()

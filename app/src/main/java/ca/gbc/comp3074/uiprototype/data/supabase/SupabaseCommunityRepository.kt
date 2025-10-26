@@ -280,6 +280,70 @@ class SupabaseCommunityRepository(private val context: Context) {
     }
     
     /**
+     * Recalculate and fix comment/like counts for all posts
+     * This ensures counts match the actual number of comments/likes
+     */
+    suspend fun syncPostCounts(): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            // Get all posts
+            val posts = client.postgrest["community_posts"]
+                .select(Columns.ALL)
+                .decodeList<CommunityPost>()
+            
+            Log.d(TAG, "Syncing counts for ${posts.size} posts...")
+            
+            for (post in posts) {
+                try {
+                    // Count actual comments
+                    val actualComments = client.postgrest["post_comments"]
+                        .select(Columns.ALL) {
+                            filter {
+                                eq("post_id", post.id)
+                            }
+                        }
+                        .decodeList<PostComment>()
+                    
+                    // Count actual likes
+                    val actualLikes = client.postgrest["post_likes"]
+                        .select(Columns.ALL) {
+                            filter {
+                                eq("post_id", post.id)
+                            }
+                        }
+                        .decodeList<PostLike>()
+                    
+                    val actualCommentsCount = actualComments.size
+                    val actualLikesCount = actualLikes.size
+                    
+                    // Update if counts don't match
+                    if (post.commentsCount != actualCommentsCount || post.likesCount != actualLikesCount) {
+                        Log.d(TAG, "Syncing post ${post.id}: comments ${post.commentsCount} -> $actualCommentsCount, likes ${post.likesCount} -> $actualLikesCount")
+                        
+                        val updatedPost = post.copy(
+                            commentsCount = actualCommentsCount,
+                            likesCount = actualLikesCount
+                        )
+                        
+                        client.postgrest["community_posts"].update(updatedPost) {
+                            filter {
+                                eq("id", post.id)
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed to sync counts for post ${post.id}", e)
+                }
+            }
+            
+            Log.d(TAG, "Post counts synced successfully")
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to sync post counts", e)
+            Result.failure(e)
+        }
+    }
+    
+    /**
      * Delete a post (only by post owner)
      */
     suspend fun deletePost(postId: String): Result<Unit> = withContext(Dispatchers.IO) {
