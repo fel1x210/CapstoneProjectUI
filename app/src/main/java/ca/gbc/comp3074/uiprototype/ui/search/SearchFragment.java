@@ -1,5 +1,6 @@
 package ca.gbc.comp3074.uiprototype.ui.search;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.KeyEvent;
@@ -28,6 +29,7 @@ import java.util.Locale;
 
 import ca.gbc.comp3074.uiprototype.R;
 import ca.gbc.comp3074.uiprototype.data.PlaceEntity;
+import ca.gbc.comp3074.uiprototype.ui.details.PlaceDetailsActivity;
 import ca.gbc.comp3074.uiprototype.utils.AppConfig;
 
 public class SearchFragment extends Fragment {
@@ -243,7 +245,10 @@ public class SearchFragment extends Fragment {
             reviews.setText(String.format(Locale.getDefault(), "(%d reviews)", place.reviewCount));
 
             tagGroup.removeAllViews();
-            for (String tag : place.tags) {
+            // Limit tags to improve performance (max 3 tags per place)
+            int maxTags = Math.min(place.tags.size(), 3);
+            for (int i = 0; i < maxTags; i++) {
+                String tag = place.tags.get(i);
                 Chip chip = new Chip(requireContext(), null,
                         com.google.android.material.R.style.Widget_Material3_Chip_Assist_Elevated);
                 chip.setText(tag);
@@ -252,8 +257,12 @@ public class SearchFragment extends Fragment {
                         getResources().getColor(R.color.quiet_space_text_secondary, requireContext().getTheme()));
                 chip.setRippleColorResource(R.color.quiet_space_primary);
                 chip.setEnsureMinTouchTargetSize(false);
+                chip.setClickable(false); // Disable click for better performance
                 tagGroup.addView(chip);
             }
+
+            // Add click listener to open place details
+            card.setOnClickListener(v -> openPlaceDetails(place));
 
             resultsContainer.addView(card);
         }
@@ -328,9 +337,70 @@ public class SearchFragment extends Fragment {
                     calculateDistance(entity.latitude, entity.longitude),
                     entity.rating,
                     entity.reviewCount,
-                    entity.tags != null ? entity.tags : Arrays.asList("Quiet space")));
+                    entity.tags != null ? entity.tags : Arrays.asList("Quiet space"),
+                    entity.googlePlaceId)); // Include Google Place ID
         }
         return converted;
+    }
+
+    private void openPlaceDetails(Place place) {
+        if (place.googlePlaceId != null && !place.googlePlaceId.isEmpty()) {
+            // Has Google Place ID - open directly
+            Intent intent = new Intent(requireContext(), PlaceDetailsActivity.class);
+            intent.putExtra(PlaceDetailsActivity.EXTRA_GOOGLE_PLACE_ID, place.googlePlaceId);
+            startActivity(intent);
+            requireActivity().overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        } else {
+            // No Google Place ID - search for it first
+            searchAndOpenPlaceDetails(place.name);
+        }
+    }
+
+    private void searchAndOpenPlaceDetails(String placeName) {
+        // Show loading dialog
+        android.app.ProgressDialog dialog = new android.app.ProgressDialog(requireContext());
+        dialog.setMessage("Opening place details...");
+        dialog.setCancelable(false);
+        dialog.show();
+
+        // Search for this place using Google Places API
+        searchManager.searchByText(placeName, AppConfig.DEFAULT_LATITUDE, AppConfig.DEFAULT_LONGITUDE,
+                new SearchManager.SearchCallback() {
+                    @Override
+                    public void onSearchResults(List<PlaceEntity> results) {
+                        requireActivity().runOnUiThread(() -> {
+                            dialog.dismiss();
+                            if (results != null && !results.isEmpty()) {
+                                // Found the place - open details with first result
+                                PlaceEntity place = results.get(0);
+                                if (place.googlePlaceId != null && !place.googlePlaceId.isEmpty()) {
+                                    Intent intent = new Intent(requireContext(), PlaceDetailsActivity.class);
+                                    intent.putExtra(PlaceDetailsActivity.EXTRA_GOOGLE_PLACE_ID, place.googlePlaceId);
+                                    startActivity(intent);
+                                    requireActivity().overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                                } else {
+                                    android.widget.Toast.makeText(requireContext(),
+                                            "Unable to load place details",
+                                            android.widget.Toast.LENGTH_SHORT).show();
+                                }
+                            } else {
+                                android.widget.Toast.makeText(requireContext(),
+                                        "Place not found",
+                                        android.widget.Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onSearchError(String error) {
+                        requireActivity().runOnUiThread(() -> {
+                            dialog.dismiss();
+                            android.widget.Toast.makeText(requireContext(),
+                                    "Error loading place: " + error,
+                                    android.widget.Toast.LENGTH_SHORT).show();
+                        });
+                    }
+                });
     }
 
     private String calculateDistance(double lat, double lng) {
@@ -345,55 +415,34 @@ public class SearchFragment extends Fragment {
     }
 
     private void animateEntrance(View root) {
+        // Simplified animation for better performance
         View searchHeader = root.findViewById(R.id.searchHeader);
         View searchBar = root.findViewById(R.id.searchBar);
         View scroll = root.findViewById(R.id.searchScroll);
 
+        // Quick fade-in only, no translation for smoother performance
+        searchHeader.setAlpha(0f);
+        searchBar.setAlpha(0f);
+        scroll.setAlpha(0f);
+
         searchHeader.post(() -> {
+            // Faster, simpler animations
             searchHeader.animate()
                     .alpha(1f)
-                    .translationY(0f)
-                    .setDuration(600)
-                    .setInterpolator(new DecelerateInterpolator())
+                    .setDuration(200)
                     .start();
 
             searchBar.animate()
                     .alpha(1f)
-                    .translationY(0f)
-                    .setStartDelay(120)
-                    .setDuration(500)
-                    .setInterpolator(new DecelerateInterpolator())
+                    .setStartDelay(50)
+                    .setDuration(150)
                     .start();
 
-            if (scroll instanceof androidx.core.widget.NestedScrollView) {
-                androidx.core.widget.NestedScrollView nsv = (androidx.core.widget.NestedScrollView) scroll;
-                // Ensure the scroll view itself fades/translates in
-                scroll.animate()
-                        .alpha(1f)
-                        .translationY(0f)
-                        .setStartDelay(200)
-                        .setDuration(550)
-                        .setInterpolator(new DecelerateInterpolator())
-                        .start();
-                if (nsv.getChildCount() > 0) {
-                    View content = nsv.getChildAt(0);
-                    content.animate()
-                            .alpha(1f)
-                            .translationY(0f)
-                            .setStartDelay(200)
-                            .setDuration(550)
-                            .setInterpolator(new DecelerateInterpolator())
-                            .start();
-                }
-            } else {
-                scroll.animate()
-                        .alpha(1f)
-                        .translationY(0f)
-                        .setStartDelay(200)
-                        .setDuration(550)
-                        .setInterpolator(new DecelerateInterpolator())
-                        .start();
-            }
+            scroll.animate()
+                    .alpha(1f)
+                    .setStartDelay(100)
+                    .setDuration(150)
+                    .start();
         });
     }
 
@@ -404,14 +453,20 @@ public class SearchFragment extends Fragment {
         final float rating;
         final int reviewCount;
         final List<String> tags;
+        final String googlePlaceId; // Add Google Place ID for details
 
         Place(String name, String type, String distance, float rating, int reviewCount, List<String> tags) {
+            this(name, type, distance, rating, reviewCount, tags, null);
+        }
+
+        Place(String name, String type, String distance, float rating, int reviewCount, List<String> tags, String googlePlaceId) {
             this.name = name;
             this.type = type;
             this.distance = distance;
             this.rating = rating;
             this.reviewCount = reviewCount;
             this.tags = tags;
+            this.googlePlaceId = googlePlaceId;
         }
     }
 

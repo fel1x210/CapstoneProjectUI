@@ -91,7 +91,98 @@ public class PlaceDataConverter {
         // Set description based on type
         entity.description = generateDescription(entity.type, entity.rating, entity.reviewCount);
         
+        // Set distance (will be calculated later if needed)
+        entity.distance = "Nearby";
+        
+        // Set required fields with defaults
+        entity.lastVisited = "Never";
+        entity.emoji = getEmojiForType(entity.type);
+        entity.favorite = false;
+        entity.checkins = 0;
+        
+        // Set tags based on type
+        entity.tags = generateTagsForType(entity.type);
+        
         return entity;
+    }
+
+    /**
+     * Get emoji for place type
+     */
+    private static String getEmojiForType(String type) {
+        switch (type) {
+            case "Library": return "📚";
+            case "Park": return "🌳";
+            case "Cafe": return "☕";
+            case "Museum": return "🏛️";
+            case "Gallery": return "🎨";
+            case "Wellness": return "🧘";
+            case "Spiritual": return "🕊️";
+            case "Study Space": return "📖";
+            case "Bookstore": return "📕";
+            default: return "📍";
+        }
+    }
+
+    /**
+     * Generate tags for place type
+     */
+    private static List<String> generateTagsForType(String type) {
+        List<String> tags = new ArrayList<>();
+        
+        switch (type) {
+            case "Library":
+                tags.add("Quiet");
+                tags.add("Study");
+                tags.add("Free WiFi");
+                break;
+            case "Park":
+                tags.add("Outdoor");
+                tags.add("Nature");
+                tags.add("Fresh Air");
+                break;
+            case "Cafe":
+                tags.add("Coffee");
+                tags.add("WiFi");
+                tags.add("Cozy");
+                break;
+            case "Museum":
+                tags.add("Cultural");
+                tags.add("Quiet");
+                tags.add("Educational");
+                break;
+            case "Gallery":
+                tags.add("Art");
+                tags.add("Inspiring");
+                tags.add("Quiet");
+                break;
+            case "Wellness":
+                tags.add("Relaxation");
+                tags.add("Peaceful");
+                tags.add("Calm");
+                break;
+            case "Spiritual":
+                tags.add("Meditation");
+                tags.add("Peaceful");
+                tags.add("Quiet");
+                break;
+            case "Study Space":
+                tags.add("Study");
+                tags.add("Quiet");
+                tags.add("Focus");
+                break;
+            case "Bookstore":
+                tags.add("Books");
+                tags.add("Quiet");
+                tags.add("Reading");
+                break;
+            default:
+                tags.add("Quiet");
+                tags.add("Peaceful");
+                break;
+        }
+        
+        return tags;
     }
 
     /**

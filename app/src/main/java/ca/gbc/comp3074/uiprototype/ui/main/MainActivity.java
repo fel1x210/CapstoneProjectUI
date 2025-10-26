@@ -122,10 +122,24 @@ public class MainActivity extends AppCompatActivity {
         if (fragment == activeFragment)
             return; // Don't reload same fragment
 
-        // Use setReorderingAllowed for better performance
-        var transaction = getSupportFragmentManager()
-                .beginTransaction()
-                .setReorderingAllowed(true);
+        // Use show/hide instead of replace for better performance
+        androidx.fragment.app.FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        
+        // Hide current active fragment
+        if (activeFragment != null) {
+            transaction.hide(activeFragment);
+        }
+        
+        // Show or add the new fragment
+        if (fragment.isAdded()) {
+            transaction.show(fragment);
+        } else {
+            transaction.add(R.id.fragment_container, fragment);
+        }
+        
+        transaction.commitNowAllowingStateLoss(); // Use commitNowAllowingStateLoss for better performance
+        activeFragment = fragment;
+    }
 
         if (homeFragment != null && homeFragment != fragment)
             transaction.hide(homeFragment);
