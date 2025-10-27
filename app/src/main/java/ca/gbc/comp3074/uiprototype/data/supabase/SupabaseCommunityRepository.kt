@@ -150,44 +150,12 @@ class SupabaseCommunityRepository(private val context: Context) {
                     createdAt = System.currentTimeMillis()
                 )
                 client.postgrest["post_likes"].insert(newLike)
-                
-                // Increment likes count - fetch current post first
-                val currentPost = client.postgrest["community_posts"]
-                    .select(Columns.ALL) {
-                        filter {
-                            eq("id", postId)
-                        }
-                    }
-                    .decodeSingle<CommunityPost>()
-                
-                val updatedPost = currentPost.copy(likesCount = currentPost.likesCount + 1)
-                client.postgrest["community_posts"].update(updatedPost) {
-                    filter {
-                        eq("id", postId)
-                    }
-                }
                 true
             } else {
                 // Remove like
                 client.postgrest["post_likes"].delete {
                     filter {
                         eq("id", existingLikes.first().id)
-                    }
-                }
-                
-                // Decrement likes count - fetch current post first
-                val currentPost = client.postgrest["community_posts"]
-                    .select(Columns.ALL) {
-                        filter {
-                            eq("id", postId)
-                        }
-                    }
-                    .decodeSingle<CommunityPost>()
-                
-                val updatedPost = currentPost.copy(likesCount = currentPost.likesCount - 1)
-                client.postgrest["community_posts"].update(updatedPost) {
-                    filter {
-                        eq("id", postId)
                     }
                 }
                 false
@@ -232,22 +200,6 @@ class SupabaseCommunityRepository(private val context: Context) {
             )
             
             client.postgrest["post_comments"].insert(newComment)
-            
-            // Increment comments count - fetch current post first
-            val currentPost = client.postgrest["community_posts"]
-                .select(Columns.ALL) {
-                    filter {
-                        eq("id", postId)
-                    }
-                }
-                .decodeSingle<CommunityPost>()
-            
-            val updatedPost = currentPost.copy(commentsCount = currentPost.commentsCount + 1)
-            client.postgrest["community_posts"].update(updatedPost) {
-                filter {
-                    eq("id", postId)
-                }
-            }
             
             Log.d(TAG, "Comment added successfully to post $postId")
             Result.success(newComment)
