@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -46,9 +47,10 @@ class CommunityPostAdapter(
         private val btnMore: ImageButton = itemView.findViewById(R.id.btnMore)
         private val imgPost: ImageView = itemView.findViewById(R.id.imgPost)
         private val chipCategory: Chip = itemView.findViewById(R.id.chipCategory)
-        private val btnLike: ImageButton = itemView.findViewById(R.id.btnLike)
+        private val btnLike: LinearLayout = itemView.findViewById(R.id.btnLike)
+        private val ivLikeIcon: ImageView = itemView.findViewById(R.id.ivLikeIcon)
         private val tvLikesCount: TextView = itemView.findViewById(R.id.tvLikesCount)
-        private val btnComment: ImageButton = itemView.findViewById(R.id.btnComment)
+        private val btnComment: LinearLayout = itemView.findViewById(R.id.btnComment)
         private val tvCommentsCount: TextView = itemView.findViewById(R.id.tvCommentsCount)
         private val tvTimeAgo: TextView = itemView.findViewById(R.id.tvTimeAgo)
         private val tvCaption: TextView = itemView.findViewById(R.id.tvCaption)
@@ -95,17 +97,8 @@ class CommunityPostAdapter(
             } else {
                 R.drawable.ic_heart_outline
             }
-            btnLike.setImageResource(likeIcon)
+            ivLikeIcon.setImageResource(likeIcon)
             tvLikesCount.text = post.likesCount.toString()
-            
-            // Comments
-            tvCommentsCount.text = post.commentsCount.toString()
-            
-            // Time ago
-            tvTimeAgo.text = getTimeAgo(post.createdAt)
-            
-            // Caption
-            tvCaption.text = post.caption
             
             // Click listeners
             btnLike.setOnClickListener { onLikeClick(post) }
@@ -113,31 +106,37 @@ class CommunityPostAdapter(
             btnMore.setOnClickListener { onMoreClick(post) }
             imgUserAvatar.setOnClickListener { onUserClick(post) }
             tvUserName.setOnClickListener { onUserClick(post) }
-        }
-        
-        private fun getTimeAgo(timestamp: Long): String {
-            if (timestamp == 0L) return "just now"
             
-            val now = System.currentTimeMillis()
-            val diff = now - timestamp
+            // Comments
+            tvCommentsCount.text = post.commentsCount.toString()
             
-            return when {
-                diff < TimeUnit.MINUTES.toMillis(1) -> "just now"
-                diff < TimeUnit.HOURS.toMillis(1) -> {
-                    val minutes = TimeUnit.MILLISECONDS.toMinutes(diff)
-                    "${minutes}m ago"
-                }
-                diff < TimeUnit.DAYS.toMillis(1) -> {
-                    val hours = TimeUnit.MILLISECONDS.toHours(diff)
-                    "${hours}h ago"
-                }
-                diff < TimeUnit.DAYS.toMillis(7) -> {
-                    val days = TimeUnit.MILLISECONDS.toDays(diff)
-                    "${days}d ago"
-                }
-                else -> {
-                    val date = Date(timestamp)
-                    SimpleDateFormat("MMM dd", Locale.getDefault()).format(date)
+            // Time ago
+            // Time ago
+            val timestamp = post.createdAt
+            if (timestamp == 0L) {
+                tvTimeAgo.text = "just now"
+            } else {
+                val now = System.currentTimeMillis()
+                val diff = now - timestamp
+                
+                tvTimeAgo.text = when {
+                    diff < TimeUnit.MINUTES.toMillis(1) -> "just now"
+                    diff < TimeUnit.HOURS.toMillis(1) -> {
+                        val minutes = TimeUnit.MILLISECONDS.toMinutes(diff)
+                        "${minutes}m ago"
+                    }
+                    diff < TimeUnit.DAYS.toMillis(1) -> {
+                        val hours = TimeUnit.MILLISECONDS.toHours(diff)
+                        "${hours}h ago"
+                    }
+                    diff < TimeUnit.DAYS.toMillis(7) -> {
+                        val days = TimeUnit.MILLISECONDS.toDays(diff)
+                        "${days}d ago"
+                    }
+                    else -> {
+                        val date = Date(timestamp)
+                        SimpleDateFormat("MMM dd", Locale.getDefault()).format(date)
+                    }
                 }
             }
         }
