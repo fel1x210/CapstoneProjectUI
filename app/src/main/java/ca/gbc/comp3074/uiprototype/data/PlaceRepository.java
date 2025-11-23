@@ -102,27 +102,36 @@ public class PlaceRepository {
      */
     public void insertOrUpdate(PlaceEntity place) {
         executorService.execute(() -> {
+            android.util.Log.d("PlaceRepository",
+                    "insertOrUpdate called for: " + place.name + ", favorite=" + place.favorite);
             if (place.googlePlaceId != null) {
                 PlaceEntity existing = placeDao.getPlaceByGoogleId(place.googlePlaceId);
                 if (existing != null) {
                     place.id = existing.id;
                     placeDao.update(place);
+                    android.util.Log.d("PlaceRepository", "Updated existing place in Room DB: " + place.name);
                 } else {
                     placeDao.insert(place);
+                    android.util.Log.d("PlaceRepository", "Inserted new place in Room DB: " + place.name);
                 }
 
                 // Sync with Supabase
+                android.util.Log.d("PlaceRepository", "Triggering Supabase sync for: " + place.name);
                 syncToSupabase(place);
             } else {
                 placeDao.insert(place);
+                android.util.Log.d("PlaceRepository", "Inserted place without Google ID");
             }
         });
     }
 
     private void syncToSupabase(PlaceEntity place) {
         if (place.favorite) {
+            android.util.Log.d("PlaceRepository", "Calling SupabaseSyncHelper.addFavorite for: " + place.name);
             SupabaseSyncHelper.addFavorite(supabaseFavoritesRepository, place);
         } else {
+            android.util.Log.d("PlaceRepository",
+                    "Calling SupabaseSyncHelper.removeFavorite for: " + place.googlePlaceId);
             SupabaseSyncHelper.removeFavorite(supabaseFavoritesRepository, place.googlePlaceId);
         }
     }
@@ -137,7 +146,16 @@ public class PlaceRepository {
 
     // Helper method for the Kotlin sync helper to call back
     public void updateLocalFavorites(List<UserFavorite> cloudFavorites) {
+        android.util.Log.d("PlaceRepository",
+                "updateLocalFavorites called with " + cloudFavorites.size() + " favorites from cloud");
         executorService.execute(() -> {
+            // Create a set of cloud Google Place IDs for quick lookup
+            java.util.Set<String> cloudGoogleIds = new java.util.HashSet<>();
+            for (UserFavorite fav : cloudFavorites) {
+                cloudGoogleIds.add(fav.getGooglePlaceId());
+            }
+
+            // First, update/insert favorites from cloud
             for (UserFavorite cloudFav : cloudFavorites) {
                 PlaceEntity existing = placeDao.getPlaceByGoogleId(cloudFav.getGooglePlaceId());
                 if (existing == null) {
@@ -157,12 +175,18 @@ public class PlaceRepository {
                     newPlace.tags = new java.util.ArrayList<>();
 
                     placeDao.insert(newPlace);
+                    android.util.Log.d("PlaceRepository", "Inserted new favorite from cloud: " + newPlace.name);
                 } else if (!existing.favorite) {
                     // Update existing place to be favorite
                     existing.favorite = true;
                     placeDao.update(existing);
+                    android.util.Log.d("PlaceRepository", "Updated existing place to favorite: " + existing.name);
+                } else {
+                    android.util.Log.d("PlaceRepository", "Place already exists and is favorited: " + existing.name);
                 }
             }
+
+            android.util.Log.d("PlaceRepository", "Finished updating local favorites from cloud");
         });
     }
 }
