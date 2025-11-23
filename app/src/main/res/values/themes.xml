@@ -1,9 +1,19 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme with performance optimizations -->
     <style name="Base.Theme.UIPrototype" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Performance optimizations -->
-        <item name="android:windowBackground">@android:color/white</item>
+        <!-- Brand Colors -->
+        <item name="colorPrimary">@color/quiet_space_primary</item>
+        <item name="colorPrimaryVariant">@color/quiet_space_primary_dark</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/quiet_space_accent</item>
+        <item name="colorSecondaryVariant">@color/quiet_space_accent_secondary</item>
+        <item name="colorOnSecondary">@color/white</item>
+        
+        <!-- UI Colors -->
+        <item name="android:windowBackground">@color/quiet_space_background</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@color/quiet_space_surface_variant</item>
         
         <!-- Smooth activity transitions -->
         <item name="android:windowAnimationStyle">@style/WindowAnimationTransition</item>
@@ -14,7 +24,7 @@
         <item name="android:windowEnterAnimation">@anim/fade_in</item>
         <item name="android:windowExitAnimation">@anim/fade_out</item>
         
-        <!-- Hardware acceleration (already set in manifest but good to reinforce) -->
+        <!-- Hardware acceleration -->
         <item name="android:hardwareAccelerated">true</item>
     </style>
 
@@ -39,18 +49,48 @@
 
     <style name="BottomNavTextActive" parent="TextAppearance.MaterialComponents.Caption">
         <item name="android:textSize">12sp</item>
-        <item name="android:textColor">@color/quiet_space_primary</item>
+        <item name="android:textColor">@color/quiet_space_primary_dark</item>
         <item name="android:fontFamily">sans-serif-medium</item>
     </style>
 
     <style name="BottomNavTextInactive" parent="TextAppearance.MaterialComponents.Caption">
         <item name="android:textSize">12sp</item>
-        <item name="android:textColor">@color/quiet_space_on_surface_variant</item>
+        <item name="android:textColor">@color/quiet_space_text_secondary</item>
         <item name="android:fontFamily">sans-serif</item>
     </style>
 
     <style name="CircleImageView">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">50%</item>
+    </style>
+    
+    <!-- New Card Style -->
+    <style name="QuietSpaceCard" parent="Widget.Material3.CardView.Elevated">
+        <item name="cardBackgroundColor">@color/quiet_space_surface</item>
+        <item name="cardCornerRadius">20dp</item>
+        <item name="cardElevation">4dp</item>
+        <item name="strokeWidth">0dp</item>
+    </style>
+
+    <!-- Bottom Navigation Style -->
+    <style name="Widget.App.BottomNavigationView" parent="Widget.Material3.BottomNavigationView">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.App.BottomNavigationView</item>
+        <item name="itemActiveIndicatorStyle">@style/Widget.App.BottomNavigationView.ActiveIndicator</item>
+    </style>
+
+    <style name="ThemeOverlay.App.BottomNavigationView" parent="">
+        <item name="colorSecondaryContainer">@color/quiet_space_primary_light</item>
+        <item name="colorOnSecondaryContainer">@color/quiet_space_primary_dark</item>
+        <item name="colorOnSurfaceVariant">@color/quiet_space_text_secondary</item>
+    </style>
+
+    <style name="Widget.App.BottomNavigationView.ActiveIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:color">@color/quiet_space_primary_light</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.App.SmallComponent</item>
+    </style>
+
+    <style name="ShapeAppearance.App.SmallComponent" parent="ShapeAppearance.Material3.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item>
     </style>
 </resources>

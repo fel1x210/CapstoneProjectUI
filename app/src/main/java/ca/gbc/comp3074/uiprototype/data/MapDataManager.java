@@ -37,7 +37,7 @@ public class MapDataManager {
     private Observer<List<PlaceEntity>> placesObserver;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
-    
+
     // Current location for searches
     private LatLng currentLocation;
 
@@ -45,7 +45,7 @@ public class MapDataManager {
         try {
             placeRepository = new PlaceRepository((android.app.Application) context.getApplicationContext());
             placesService = new GooglePlacesService();
-            
+
             // Set default location (Toronto) if no current location
             currentLocation = new LatLng(43.6532, -79.3832);
         } catch (Exception e) {
@@ -62,7 +62,7 @@ public class MapDataManager {
         this.googleMap = map;
         loadPlacesOnMap();
     }
-    
+
     /**
      * Update current location and refresh places
      */
@@ -70,7 +70,7 @@ public class MapDataManager {
         this.currentLocation = location;
         refreshPlacesFromGoogle();
     }
-    
+
     /**
      * Fetch places from Google Places API
      */
@@ -79,47 +79,72 @@ public class MapDataManager {
             Log.w(TAG, "No current location set, using default");
             currentLocation = new LatLng(43.6532, -79.3832); // Toronto default
         }
-        
-        Log.d(TAG, "Fetching places from Google API near: " + currentLocation.latitude + ", " + currentLocation.longitude);
-        
-        placesService.searchQuietPlaces(
-            currentLocation.latitude, 
-            currentLocation.longitude, 
-            DEFAULT_SEARCH_RADIUS,
-            new GooglePlacesService.PlacesCallback() {
-                @Override
-                public void onSuccess(List<GooglePlacesService.GooglePlace> googlePlaces) {
-                    Log.d(TAG, "Received " + googlePlaces.size() + " places from Google API");
-                    
-                    // Convert Google Places to our entities
-                    List<PlaceEntity> placeEntities = PlaceDataConverter.convertGooglePlacesToEntities(googlePlaces);
-                    
-                    // Save to local database and update map
-                    executorService.execute(() -> {
-                        // Clear existing places and add new ones
-                        placeRepository.deleteAllPlaces();
-                        for (PlaceEntity place : placeEntities) {
-                            placeRepository.insertPlace(place);
-                        }
-                        
-                        // Update map on main thread
-                        mainHandler.post(() -> {
-                            updateMarkersFromPlaces(placeEntities);
-                            placesLiveData.setValue(placeEntities);
-                        });
-                    });
-                }
 
-                @Override
-                public void onError(String error) {
-                    Log.e(TAG, "Error fetching places from Google: " + error);
-                    // Fall back to local data
-                    loadPlacesOnMap();
-                }
-            }
-        );
+        Log.d(TAG,
+                "Fetching places from Google API near: " + currentLocation.latitude + ", " + currentLocation.longitude);
+
+        placesService.searchQuietPlaces(
+                currentLocation.latitude,
+                currentLocation.longitude,
+                DEFAULT_SEARCH_RADIUS,
+                new GooglePlacesService.PlacesCallback() {
+                    @Override
+                    public void onSuccess(List<GooglePlacesService.GooglePlace> googlePlaces) {
+                        Log.d(TAG, "Received " + googlePlaces.size() + " places from Google API");
+
+                        // Convert Google Places to our entities
+                        List<PlaceEntity> placeEntities = PlaceDataConverter
+                                .convertGooglePlacesToEntities(googlePlaces);
+
+                        // Save to local database and update map
+                        executorService.execute(() -> {
+                            // Get existing favorites to preserve them
+                            List<PlaceEntity> existingPlaces = placeRepository.getAllPlacesSync();
+                            java.util.Map<String, PlaceEntity> favoriteMap = new java.util.HashMap<>();
+                            for (PlaceEntity existing : existingPlaces) {
+                                if (existing.favorite && existing.googlePlaceId != null) {
+                                    favoriteMap.put(existing.googlePlaceId, existing);
+                                }
+                            }
+
+                            // Delete only non-favorite places before adding new ones
+                            placeRepository.deleteAllPlaces();
+
+                            // Re-insert favorites first
+                            for (PlaceEntity favorite : favoriteMap.values()) {
+                                placeRepository.insertPlace(favorite);
+                            }
+
+                            // Now insert new places from Google, preserving favorite status if they exist
+                            for (PlaceEntity place : placeEntities) {
+                                if (place.googlePlaceId != null && favoriteMap.containsKey(place.googlePlaceId)) {
+                                    // This place is a favorite, preserve its favorite status
+                                    PlaceEntity favorite = favoriteMap.get(place.googlePlaceId);
+                                    place.favorite = true;
+                                    place.id = favorite.id; // Keep the same ID
+                                    place.checkins = favorite.checkins; // Preserve checkins
+                                    place.lastVisited = favorite.lastVisited; // Preserve last visited
+                                }
+                                placeRepository.insertPlace(place);
+                            }
+
+                            // Update map on main thread
+                            mainHandler.post(() -> {
+                                updateMarkersFromPlaces(placeEntities);
+                                placesLiveData.setValue(placeEntities);
+                            });
+                        });
+                    }
+
+                    @Override
+                    public void onError(String error) {
+                        Log.e(TAG, "Error fetching places from Google: " + error);
+                        // Fall back to local data
+                        loadPlacesOnMap();
+                    }
+                });
     }
-    
+
     /**
      * Search for specific types of places
      */
@@ -128,14 +153,13 @@ public class MapDataManager {
             callback.onError("Location not available");
             return;
         }
-        
+
         placesService.searchPlacesByType(
-            currentLocation.latitude,
-            currentLocation.longitude,
-            DEFAULT_SEARCH_RADIUS,
-            placeType,
-            callback
-        );
+                currentLocation.latitude,
+                currentLocation.longitude,
+                DEFAULT_SEARCH_RADIUS,
+                placeType,
+                callback);
     }
 
     public void observePlaces(LifecycleOwner lifecycleOwner) {

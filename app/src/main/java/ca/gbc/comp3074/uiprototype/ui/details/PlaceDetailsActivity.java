@@ -34,6 +34,7 @@ public class PlaceDetailsActivity extends AppCompatActivity {
     private PlaceRepository placeRepository;
     private GooglePlacesService placesService;
     private PlaceEntity currentPlace;
+    private GooglePlacesService.GooglePlaceDetails currentGooglePlaceDetails;
 
     // Views
     private MaterialToolbar toolbar;
@@ -126,28 +127,57 @@ public class PlaceDetailsActivity extends AppCompatActivity {
     }
 
     private void loadPlaceFromDatabase(int placeId) {
-        // Load from local database - no fallback to sample data
-        Toast.makeText(this, "Place not found in database", Toast.LENGTH_SHORT).show();
-        finish();
+        new Thread(() -> {
+            currentPlace = placeRepository.getPlaceById(placeId);
+            runOnUiThread(() -> {
+                if (currentPlace != null) {
+                    displayPlaceDetailsFromEntity(currentPlace);
+                    updateFavoriteButtonState();
+                } else {
+                    Toast.makeText(this, "Place not found in database", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+            });
+        }).start();
     }
 
     private void loadPlaceFromGoogle(String googlePlaceId) {
-        placesService.getPlaceDetails(googlePlaceId, new GooglePlacesService.PlaceDetailsCallback() {
-            @Override
-            public void onSuccess(GooglePlacesService.GooglePlaceDetails placeDetails) {
-                runOnUiThread(() -> displayPlaceDetails(placeDetails));
+        // Check if we already have this place in our database
+        new Thread(() -> {
+            PlaceEntity existingPlace = placeRepository.getPlaceByGoogleId(googlePlaceId);
+            if (existingPlace != null) {
+                currentPlace = existingPlace;
             }
 
-            @Override
-            public void onError(String error) {
-                runOnUiThread(() -> {
-                    Toast.makeText(PlaceDetailsActivity.this,
-                            "Error loading place details: " + error,
-                            Toast.LENGTH_LONG).show();
-                    finish(); // Close activity if we can't load data
-                });
-            }
-        });
+            placesService.getPlaceDetails(googlePlaceId, new GooglePlacesService.PlaceDetailsCallback() {
+                @Override
+                public void onSuccess(GooglePlacesService.GooglePlaceDetails placeDetails) {
+                    currentGooglePlaceDetails = placeDetails;
+                    runOnUiThread(() -> {
+                        displayPlaceDetails(placeDetails);
+                        updateFavoriteButtonState();
+                    });
+                }
+
+                @Override
+                public void onError(String error) {
+                    runOnUiThread(() -> {
+                        // If we have local data, show that at least
+                        if (currentPlace != null) {
+                            displayPlaceDetailsFromEntity(currentPlace);
+                            updateFavoriteButtonState();
+                            Toast.makeText(PlaceDetailsActivity.this,
+                                    "Could not update details from Google", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(PlaceDetailsActivity.this,
+                                    "Error loading place details: " + error,
+                                    Toast.LENGTH_LONG).show();
+                            finish();
+                        }
+                    });
+                }
+            });
+        }).start();
     }
 
     private void displayPlaceDetails(GooglePlacesService.GooglePlaceDetails details) {
@@ -357,12 +387,119 @@ public class PlaceDetailsActivity extends AppCompatActivity {
         });
 
         // Favorite button
-        favoriteButton.setOnClickListener(v -> {
-            // Toggle favorite status
+        favoriteButton.setOnClickListener(v -> toggleFavorite());
+    }
+
+    private void toggleFavorite() {
+        if (currentPlace == null) {
+            if (currentGooglePlaceDetails == null)
+                return;
+            createPlaceFromDetails();
+        }
+
+        boolean newState = !currentPlace.favorite;
+        currentPlace.favorite = newState;
+
+        // Use the new smart method in repository to handle duplicates
+        placeRepository.insertOrUpdate(currentPlace);
+
+        updateFavoriteButtonState();
+
+        if (newState) {
             Toast.makeText(this, "Added to favorites", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Removed from favorites", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void updateFavoriteButtonState() {
+        if (currentPlace != null && currentPlace.favorite) {
+            favoriteButton.setIconResource(R.drawable.ic_heart_filled);
+            favoriteButton.setText("Saved");
+        } else {
+            favoriteButton.setIconResource(R.drawable.ic_heart_outline);
+            favoriteButton.setText("Save");
+        }
+    }
+
+    private void createPlaceFromDetails() {
+        if (currentGooglePlaceDetails == null)
+            return;
+
+        String type = determineQuietSpaceType(currentGooglePlaceDetails.name);
+        float quietScore = calculateQuietScore(type, currentGooglePlaceDetails.rating);
+
+        currentPlace = new PlaceEntity(
+                currentGooglePlaceDetails.name,
+                type,
+                "0 km", // Distance needs location calculation
+                currentGooglePlaceDetails.rating,
+                currentGooglePlaceDetails.userRatingsTotal,
+                false,
+                0,
+                "Never",
+                "📍",
+                new java.util.ArrayList<>(),
+                currentGooglePlaceDetails.geometry.location.lat,
+                currentGooglePlaceDetails.geometry.location.lng,
+                currentGooglePlaceDetails.formattedAddress,
+                generateDescription(type, currentGooglePlaceDetails.rating, currentGooglePlaceDetails.userRatingsTotal),
+                currentGooglePlaceDetails.formattedPhoneNumber,
+                null, // website
+                currentGooglePlaceDetails.openingHours != null && currentGooglePlaceDetails.openingHours.openNow
+                        ? "Open Now"
+                        : "Closed");
+
+        currentPlace.googlePlaceId = currentGooglePlaceDetails.placeId;
+        currentPlace.quietScore = quietScore;
+    }
+
+    private void displayPlaceDetailsFromEntity(PlaceEntity place) {
+        placeName.setText(place.name);
+        placeAddress.setText(place.address != null ? place.address : "Address not available");
+        placeRating.setText(String.format("⭐ %.1f", place.rating));
+        placeReviews.setText(String.format("(%d reviews)", place.reviewCount));
+
+        if (place.phoneNumber != null) {
+            placePhone.setText(place.phoneNumber);
+            placePhone.setVisibility(View.VISIBLE);
+            callButton.setVisibility(View.VISIBLE);
+        }
+
+        if (place.openingHours != null) {
+            placeHours.setText(place.openingHours);
+        }
+
+        placeType.setText(place.type);
+        quietScoreValue.setText(String.format("%.1f", place.quietScore));
+        placeDescription.setText(place.description);
+
+        addTagsForPlaceType(place.type);
+
+        // Setup basic buttons (call/directions)
+        if (place.phoneNumber != null) {
+            callButton.setOnClickListener(v -> {
+                Intent callIntent = new Intent(Intent.ACTION_DIAL);
+                callIntent.setData(Uri.parse("tel:" + place.phoneNumber));
+                startActivity(callIntent);
+            });
+        }
+
+        directionsButton.setOnClickListener(v -> {
+            String uri = String.format("geo:%f,%f?q=%f,%f(%s)",
+                    place.latitude, place.longitude,
+                    place.latitude, place.longitude,
+                    Uri.encode(place.name));
+            Intent mapIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+            mapIntent.setPackage("com.google.android.apps.maps");
+            if (mapIntent.resolveActivity(getPackageManager()) != null) {
+                startActivity(mapIntent);
+            } else {
+                Toast.makeText(this, "Google Maps not installed", Toast.LENGTH_SHORT).show();
+            }
         });
     }
-    
+
     @Override
     public void finish() {
         super.finish();

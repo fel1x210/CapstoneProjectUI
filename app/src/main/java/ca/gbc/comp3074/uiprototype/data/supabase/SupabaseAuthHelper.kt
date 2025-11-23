@@ -89,6 +89,33 @@ class SupabaseAuthHelper {
         }
     }
 
+    /**
+     * Waits for potential session restoration and checks login status
+     * Useful for app startup where session might be loading asynchronously
+     */
+    fun waitForSessionAndCheck(callback: (Boolean) -> Unit) {
+        CoroutineScope(Dispatchers.Main).launch {
+            try {
+                // Try up to 5 times with 300ms delay (1.5s max wait)
+                // This gives enough time for the Auth plugin to restore session from disk
+                var isLoggedIn = false
+                var attempts = 0
+                while (attempts < 5) {
+                    isLoggedIn = withContext(Dispatchers.IO) {
+                        SupabaseClientManager.isUserAuthenticated()
+                    }
+                    if (isLoggedIn) break
+                    
+                    kotlinx.coroutines.delay(300)
+                    attempts++
+                }
+                callback(isLoggedIn)
+            } catch (e: Exception) {
+                callback(false)
+            }
+        }
+    }
+
     fun getCurrentUserProfile(callback: AuthCallback) {
         CoroutineScope(Dispatchers.Main).launch {
             try {

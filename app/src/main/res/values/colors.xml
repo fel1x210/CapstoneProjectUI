@@ -2,25 +2,41 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="quiet_space_primary">#5BA3A3</color>
-    <color name="quiet_space_background">#F0F0F0</color>
-    <color name="quiet_space_surface">#FFFFFFFF</color>
-    <color name="quiet_space_surface_variant">#F0F0F0</color>
-    <color name="quiet_space_text_primary">#333333</color>
-    <color name="quiet_space_text_secondary">#666666</color>
-    <color name="quiet_space_text_muted">#999999</color>
-    <color name="quiet_space_on_surface_variant">#999999</color>
-    <color name="quiet_space_chip_inactive">#F5F5F5</color>
-    <color name="quiet_space_chip_active">#6DB4B4</color>
+    
+    <!-- Aqua Serenity Palette -->
+    <color name="quiet_space_primary">#48C9B0</color> <!-- Aqua -->
+    <color name="quiet_space_primary_dark">#16A085</color>
+    <color name="quiet_space_primary_light">#A3E4D7</color>
+    
+    <color name="quiet_space_background">#F4F6F6</color> <!-- Cool White -->
+    <color name="quiet_space_surface">#FFFFFF</color>
+    <color name="quiet_space_surface_variant">#E8F8F5</color>
+    
+    <color name="quiet_space_text_primary">#2C3E50</color> <!-- Dark Blue Grey -->
+    <color name="quiet_space_text_secondary">#566573</color>
+    <color name="quiet_space_text_muted">#ABB2B9</color>
+    
+    <color name="quiet_space_accent">#FF6B6B</color> <!-- Soft Red -->
+    <color name="quiet_space_accent_secondary">#F7DC6F</color> <!-- Soft Yellow -->
+    
+    <!-- Legacy/Functional Colors Mapped to New Palette -->
+    <color name="quiet_space_on_surface_variant">#566573</color>
+    <color name="quiet_space_chip_inactive">#E8F8F5</color>
+    <color name="quiet_space_chip_active">#A3E4D7</color>
     <color name="quiet_space_warning">#FF6B6B</color>
-    <color name="quiet_space_gradient_start">#0F1D2E</color>
-    <color name="quiet_space_gradient_center">#173A4F</color>
-    <color name="quiet_space_gradient_end">#2E6B72</color>
-    <color name="quiet_space_orb_teal">#A4E2E0</color>
-    <color name="quiet_space_orb_lilac">#C6C5EB</color>
-    <color name="quiet_space_placeholder">#F8F4F0</color>
-    <color name="quiet_space_surface_alt">#F5F5F5</color>
-    <color name="quiet_space_border">#DDDDDD</color>
-    <color name="quiet_space_search_surface">#F8F8F8</color>
-    <color name="quiet_space_map_placeholder">#E8E8E8</color>
+    
+    <color name="quiet_space_gradient_start">#48C9B0</color>
+    <color name="quiet_space_gradient_center">#1ABC9C</color>
+    <color name="quiet_space_gradient_end">#16A085</color>
+    
+    <color name="quiet_space_orb_teal">#48C9B0</color>
+    <color name="quiet_space_orb_lilac">#A569BD</color>
+    
+    <color name="quiet_space_placeholder">#E8F8F5</color>
+    <color name="quiet_space_surface_alt">#F4F6F6</color>
+    <color name="quiet_space_border">#D5DBDB</color>
+    <color name="quiet_space_search_surface">#FFFFFF</color>
+    <color name="quiet_space_map_placeholder">#D5DBDB</color>
+    
+
 </resources>

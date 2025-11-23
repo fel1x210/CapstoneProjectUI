@@ -91,6 +91,26 @@ public class MainActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             bottomNavigationView.setSelectedItemId(R.id.navigation_home);
         }
+
+        // Sync favorites from cloud on startup
+        checkAuthAndSyncFavorites();
+    }
+
+    private void checkAuthAndSyncFavorites() {
+        ca.gbc.comp3074.uiprototype.data.supabase.SupabaseAuthHelper authHelper = new ca.gbc.comp3074.uiprototype.data.supabase.SupabaseAuthHelper();
+
+        // Use waitForSessionAndCheck to handle async session restoration on startup
+        authHelper.waitForSessionAndCheck(isLoggedIn -> {
+            if (isLoggedIn) {
+                ca.gbc.comp3074.uiprototype.data.PlaceRepository repository = new ca.gbc.comp3074.uiprototype.data.PlaceRepository(
+                        getApplication());
+                repository.syncFavoritesFromCloud();
+                android.util.Log.d("MainActivity", "Triggered favorites sync on startup");
+            } else {
+                android.util.Log.d("MainActivity", "User not logged in, skipping favorites sync");
+            }
+            return kotlin.Unit.INSTANCE;
+        });
     }
 
     private void switchFragment(Fragment fragment) {
@@ -99,19 +119,19 @@ public class MainActivity extends AppCompatActivity {
 
         // Use show/hide instead of replace for better performance
         androidx.fragment.app.FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        
+
         // Hide current active fragment
         if (activeFragment != null) {
             transaction.hide(activeFragment);
         }
-        
+
         // Show or add the new fragment
         if (fragment.isAdded()) {
             transaction.show(fragment);
         } else {
             transaction.add(R.id.fragment_container, fragment);
         }
-        
+
         transaction.commitNowAllowingStateLoss(); // Use commitNowAllowingStateLoss for better performance
         activeFragment = fragment;
     }
