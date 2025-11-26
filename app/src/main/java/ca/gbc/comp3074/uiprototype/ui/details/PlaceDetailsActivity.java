@@ -17,6 +17,7 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
+import com.bumptech.glide.Glide;
 
 import java.util.Arrays;
 import java.util.List;
@@ -25,6 +26,7 @@ import ca.gbc.comp3074.uiprototype.R;
 import ca.gbc.comp3074.uiprototype.api.GooglePlacesService;
 import ca.gbc.comp3074.uiprototype.data.PlaceEntity;
 import ca.gbc.comp3074.uiprototype.data.PlaceRepository;
+import ca.gbc.comp3074.uiprototype.utils.AppConfig;
 
 public class PlaceDetailsActivity extends AppCompatActivity {
 
@@ -54,6 +56,7 @@ public class PlaceDetailsActivity extends AppCompatActivity {
     private MaterialButton callButton;
     private MaterialButton directionsButton;
     private MaterialButton favoriteButton;
+    private MaterialButton checkInButton;
     private ImageView placeImage;
 
     @Override
@@ -103,6 +106,7 @@ public class PlaceDetailsActivity extends AppCompatActivity {
         callButton = findViewById(R.id.callButton);
         directionsButton = findViewById(R.id.directionsButton);
         favoriteButton = findViewById(R.id.favoriteButton);
+        checkInButton = findViewById(R.id.checkInButton);
         placeImage = findViewById(R.id.placeImage);
     }
 
@@ -358,6 +362,13 @@ public class PlaceDetailsActivity extends AppCompatActivity {
     }
 
     private void setupButtons(GooglePlacesService.GooglePlaceDetails details) {
+        // Check In button
+        checkInButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, ca.gbc.comp3074.uiprototype.ui.checkin.CheckInActivity.class);
+            intent.putExtra("PLACE_NAME", details.name);
+            startActivity(intent);
+        });
+
         // Call button
         if (details.formattedPhoneNumber != null) {
             callButton.setOnClickListener(v -> {
@@ -452,6 +463,10 @@ public class PlaceDetailsActivity extends AppCompatActivity {
 
         currentPlace.googlePlaceId = currentGooglePlaceDetails.placeId;
         currentPlace.quietScore = quietScore;
+
+        if (currentGooglePlaceDetails.photos != null && !currentGooglePlaceDetails.photos.isEmpty()) {
+            currentPlace.photoReference = currentGooglePlaceDetails.photos.get(0).photoReference;
+        }
     }
 
     private void displayPlaceDetailsFromEntity(PlaceEntity place) {
@@ -475,6 +490,27 @@ public class PlaceDetailsActivity extends AppCompatActivity {
         placeDescription.setText(place.description);
 
         addTagsForPlaceType(place.type);
+
+        // Load image if available
+        if (place.photoReference != null && !place.photoReference.isEmpty()) {
+            String photoUrl = "https://maps.googleapis.com/maps/api/place/photo" +
+                    "?maxwidth=800" +
+                    "&photo_reference=" + place.photoReference +
+                    "&key=" + AppConfig.GOOGLE_PLACES_API_KEY;
+
+            Glide.with(this)
+                    .load(photoUrl)
+                    .centerCrop()
+                    .placeholder(R.drawable.placeholder_place)
+                    .into(placeImage);
+        }
+
+        // Check In button
+        checkInButton.setOnClickListener(v -> {
+            Intent intent = new Intent(this, ca.gbc.comp3074.uiprototype.ui.checkin.CheckInActivity.class);
+            intent.putExtra("PLACE_NAME", place.name);
+            startActivity(intent);
+        });
 
         // Setup basic buttons (call/directions)
         if (place.phoneNumber != null) {

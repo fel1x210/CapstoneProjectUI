@@ -10,7 +10,7 @@
         android:title="@string/navigation_search" />
     <item
         android:id="@+id/navigation_community"
-        android:icon="@drawable/ic_community"
+        android:icon="@drawable/ic_community_logo"
         android:title="Community" />
     <item
         android:id="@+id/navigation_favorites"

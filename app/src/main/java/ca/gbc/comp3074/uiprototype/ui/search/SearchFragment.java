@@ -53,6 +53,7 @@ public class SearchFragment extends Fragment {
 
     private EditText inputSearch;
     private TextView searchIcon;
+    private android.widget.ImageView clearSearch;
     private LinearLayout recentList;
     private GridLayout categoriesGrid;
     private LinearLayout resultsSection;
@@ -63,7 +64,6 @@ public class SearchFragment extends Fragment {
     private TextView textResultsTitle;
     private SearchViewModel viewModel;
     private String currentQuery = "";
-    private SearchManager searchManager;
 
     public SearchFragment() {
         super(R.layout.fragment_search);
@@ -73,9 +73,6 @@ public class SearchFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         bindViews(view);
-
-        // Initialize SearchManager for Google Places API
-        searchManager = new SearchManager(requireContext());
 
         populateRecentSearches();
         populateCategories();
@@ -90,6 +87,7 @@ public class SearchFragment extends Fragment {
     private void bindViews(View view) {
         inputSearch = view.findViewById(R.id.inputSearch);
         searchIcon = view.findViewById(R.id.searchIcon);
+        clearSearch = view.findViewById(R.id.clearSearch);
         recentList = view.findViewById(R.id.recentList);
         categoriesGrid = view.findViewById(R.id.categoriesGrid);
         resultsSection = view.findViewById(R.id.resultsSection);
@@ -130,6 +128,26 @@ public class SearchFragment extends Fragment {
         searchIcon.setOnClickListener(
                 v -> performSearch(inputSearch.getText() != null ? inputSearch.getText().toString() : ""));
 
+        clearSearch.setOnClickListener(v -> {
+            inputSearch.setText("");
+            performSearch("");
+        });
+
+        inputSearch.addTextChangedListener(new android.text.TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                clearSearch.setVisibility(s.length() > 0 ? View.VISIBLE : View.GONE);
+            }
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) {
+            }
+        });
+
         inputSearch.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_SEARCH ||
                     (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER
@@ -142,7 +160,49 @@ public class SearchFragment extends Fragment {
     }
 
     private void setupViewModel() {
-        viewModel = new ViewModelProvider(this).get(SearchViewModel.class);
+        viewModel = new ViewModelProvider(requireActivity()).get(SearchViewModel.class);
+
+        // Observe search query to restore UI state
+        viewModel.getSearchQuery().observe(getViewLifecycleOwner(), query -> {
+            if (query != null && !query.isEmpty()) {
+                inputSearch.setText(query);
+                currentQuery = query;
+            }
+        });
+
+        // Observe search results
+        viewModel.getSearchResults().observe(getViewLifecycleOwner(), placeEntities -> {
+            if (placeEntities != null) {
+                List<Place> googlePlaces = convertToPlaces(placeEntities);
+                String query = viewModel.getSearchQuery().getValue();
+                renderPlaces(googlePlaces,
+                        getString(R.string.search_results_title, query != null ? query : "", googlePlaces.size()),
+                        true);
+            }
+        });
+
+        // Observe loading state
+        viewModel.getIsLoading().observe(getViewLifecycleOwner(), isLoading -> {
+            if (isLoading != null && isLoading) {
+                String query = viewModel.getSearchQuery().getValue();
+                showLoadingState(query != null ? query : "");
+            }
+        });
+
+        // Observe error message
+        viewModel.getErrorMessage().observe(getViewLifecycleOwner(), error -> {
+            if (error != null) {
+                // Fallback to local search
+                String query = viewModel.getSearchQuery().getValue();
+                if (query != null) {
+                    List<Place> matches = filterPlaces(query);
+                    renderPlaces(matches,
+                            getString(R.string.search_results_title, query, matches.size()),
+                            true);
+                }
+            }
+        });
+
         viewModel.getAllPlaces().observe(getViewLifecycleOwner(), placeEntities -> {
             // Update places from database when available
             if (placeEntities != null && !placeEntities.isEmpty()) {
@@ -152,11 +212,6 @@ public class SearchFragment extends Fragment {
             // This ensures dummy data is shown if database is empty
             if (TextUtils.isEmpty(currentQuery)) {
                 showFeaturedPlaces();
-            } else {
-                List<Place> matches = filterPlaces(currentQuery);
-                renderPlaces(matches,
-                        getString(R.string.search_results_title, currentQuery, matches.size()),
-                        true);
             }
         });
     }
@@ -164,39 +219,20 @@ public class SearchFragment extends Fragment {
     private void performSearch(String query) {
         String trimmed = query == null ? "" : query.trim();
         currentQuery = trimmed;
-        inputSearch.setText(trimmed);
+
+        // Only update text if it's different to avoid cursor jumping
+        if (!inputSearch.getText().toString().equals(trimmed)) {
+            inputSearch.setText(trimmed);
+            inputSearch.setSelection(trimmed.length());
+        }
+
+        // Update ViewModel state
+        viewModel.search(trimmed, AppConfig.DEFAULT_LATITUDE, AppConfig.DEFAULT_LONGITUDE);
+
         if (TextUtils.isEmpty(trimmed)) {
             showFeaturedPlaces();
             return;
         }
-
-        // Show loading state
-        showLoadingState(trimmed);
-
-        // Search using Google Places API
-        searchManager.searchByText(trimmed, AppConfig.DEFAULT_LATITUDE, AppConfig.DEFAULT_LONGITUDE,
-                new SearchManager.SearchCallback() {
-                    @Override
-                    public void onSearchResults(List<PlaceEntity> placeEntities) {
-                        requireActivity().runOnUiThread(() -> {
-                            List<Place> googlePlaces = convertToPlaces(placeEntities);
-                            renderPlaces(googlePlaces,
-                                    getString(R.string.search_results_title, trimmed, googlePlaces.size()),
-                                    true);
-                        });
-                    }
-
-                    @Override
-                    public void onSearchError(String error) {
-                        requireActivity().runOnUiThread(() -> {
-                            // Fallback to local search
-                            List<Place> matches = filterPlaces(trimmed);
-                            renderPlaces(matches,
-                                    getString(R.string.search_results_title, trimmed, matches.size()),
-                                    true);
-                        });
-                    }
-                });
     }
 
     private void showFeaturedPlaces() {
@@ -364,10 +400,13 @@ public class SearchFragment extends Fragment {
         dialog.show();
 
         // Search for this place using Google Places API
-        searchManager.searchByText(placeName, AppConfig.DEFAULT_LATITUDE, AppConfig.DEFAULT_LONGITUDE,
+        SearchManager tempSearchManager = new SearchManager(requireContext());
+        tempSearchManager.searchByText(placeName, AppConfig.DEFAULT_LATITUDE, AppConfig.DEFAULT_LONGITUDE,
                 new SearchManager.SearchCallback() {
                     @Override
                     public void onSearchResults(List<PlaceEntity> results) {
+                        if (!isAdded())
+                            return;
                         requireActivity().runOnUiThread(() -> {
                             dialog.dismiss();
                             if (results != null && !results.isEmpty()) {
@@ -377,7 +416,8 @@ public class SearchFragment extends Fragment {
                                     Intent intent = new Intent(requireContext(), PlaceDetailsActivity.class);
                                     intent.putExtra(PlaceDetailsActivity.EXTRA_GOOGLE_PLACE_ID, place.googlePlaceId);
                                     startActivity(intent);
-                                    requireActivity().overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                                    requireActivity().overridePendingTransition(android.R.anim.fade_in,
+                                            android.R.anim.fade_out);
                                 } else {
                                     android.widget.Toast.makeText(requireContext(),
                                             "Unable to load place details",
@@ -393,6 +433,8 @@ public class SearchFragment extends Fragment {
 
                     @Override
                     public void onSearchError(String error) {
+                        if (!isAdded())
+                            return;
                         requireActivity().runOnUiThread(() -> {
                             dialog.dismiss();
                             android.widget.Toast.makeText(requireContext(),
@@ -459,7 +501,8 @@ public class SearchFragment extends Fragment {
             this(name, type, distance, rating, reviewCount, tags, null);
         }
 
-        Place(String name, String type, String distance, float rating, int reviewCount, List<String> tags, String googlePlaceId) {
+        Place(String name, String type, String distance, float rating, int reviewCount, List<String> tags,
+                String googlePlaceId) {
             this.name = name;
             this.type = type;
             this.distance = distance;

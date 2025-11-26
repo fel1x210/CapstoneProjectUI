@@ -104,9 +104,12 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.Favo
                     context.getString(R.string.favorites_remove_message, place.name),
                     Toast.LENGTH_SHORT).show());
 
-            buttonCheckIn.setOnClickListener(v -> Toast.makeText(context,
-                    context.getString(R.string.favorites_check_in_message, place.name),
-                    Toast.LENGTH_SHORT).show());
+            buttonCheckIn.setOnClickListener(v -> {
+                android.content.Intent intent = new android.content.Intent(context,
+                        ca.gbc.comp3074.uiprototype.ui.checkin.CheckInActivity.class);
+                intent.putExtra("PLACE_NAME", place.name);
+                context.startActivity(intent);
+            });
 
             buttonDirections.setOnClickListener(v -> Toast.makeText(context,
                     context.getString(R.string.favorites_directions_message, place.name),

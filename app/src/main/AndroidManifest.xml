@@ -49,6 +49,12 @@
                 android:name=".ui.auth.RegisterActivity"
                 android:exported="false" />
 
+        <!-- Check In Activity -->
+        <activity
+            android:name=".ui.checkin.CheckInActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.details.PlaceDetailsActivity" />
+
         <!-- Main Activity -->
         <activity
                 android:name=".ui.main.MainActivity"
