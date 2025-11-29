@@ -111,9 +111,16 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.Favo
                 context.startActivity(intent);
             });
 
-            buttonDirections.setOnClickListener(v -> Toast.makeText(context,
-                    context.getString(R.string.favorites_directions_message, place.name),
-                    Toast.LENGTH_SHORT).show());
+            buttonDirections.setOnClickListener(v -> {
+                android.content.Intent intent = new android.content.Intent(context,
+                        ca.gbc.comp3074.uiprototype.ui.main.MainActivity.class);
+                intent.setFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP
+                        | android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                intent.putExtra(ca.gbc.comp3074.uiprototype.ui.main.MainActivity.EXTRA_NAVIGATE_LAT, place.latitude);
+                intent.putExtra(ca.gbc.comp3074.uiprototype.ui.main.MainActivity.EXTRA_NAVIGATE_LNG, place.longitude);
+                intent.putExtra(ca.gbc.comp3074.uiprototype.ui.main.MainActivity.EXTRA_NAVIGATE_NAME, place.name);
+                context.startActivity(intent);
+            });
         }
     }
 }
