@@ -54,6 +54,8 @@ class PostCommentsActivity : AppCompatActivity() {
         }
         
         // Initialize views
+        val touchOutside = findViewById<View>(R.id.touchOutside)
+        val sheetContainer = findViewById<androidx.coordinatorlayout.widget.CoordinatorLayout>(R.id.sheetContainer)
         toolbar = findViewById(R.id.toolbar)
         recyclerViewComments = findViewById(R.id.recyclerViewComments)
         emptyState = findViewById(R.id.emptyState)
@@ -64,8 +66,29 @@ class PostCommentsActivity : AppCompatActivity() {
         
         // Setup toolbar
         toolbar.title = "$placeName - Comments"
-        toolbar.setNavigationOnClickListener {
-            finish()
+        // Navigation icon removed from XML, so no listener needed
+
+        // Setup BottomSheetBehavior
+        val behavior = com.google.android.material.bottomsheet.BottomSheetBehavior.from(sheetContainer)
+        behavior.state = com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED
+        behavior.skipCollapsed = true
+        behavior.isHideable = true
+        
+        behavior.addBottomSheetCallback(object : com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback() {
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                if (newState == com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HIDDEN) {
+                    finish()
+                }
+            }
+
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                // Optional: Fade out the scrim or background as it slides down
+            }
+        })
+
+        // Setup click listeners for dismissal
+        touchOutside.setOnClickListener {
+            behavior.state = com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HIDDEN
         }
         
         // Setup RecyclerView
@@ -159,6 +182,6 @@ class PostCommentsActivity : AppCompatActivity() {
     override fun finish() {
         super.finish()
         // Add smooth exit transition
-        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
+        overridePendingTransition(R.anim.stay, R.anim.slide_out_bottom)
     }
 }

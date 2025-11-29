@@ -264,6 +264,7 @@ class CommunityFragment : Fragment() {
         // Mark that we need to refresh when returning
         needsRefresh = true
         startActivity(intent)
+        requireActivity().overridePendingTransition(R.anim.slide_in_bottom, R.anim.stay)
     }
     
     private fun showPostOptions(post: CommunityPost) {

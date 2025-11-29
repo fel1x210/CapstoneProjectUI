@@ -115,4 +115,7 @@ dependencies {
     // Image Loading - Glide with annotation processor for custom config
     implementation("com.github.bumptech.glide:glide:4.16.0")
     kapt("com.github.bumptech.glide:compiler:4.16.0") // Use kapt for Kotlin projects
+    
+    // Maps Utils
+    implementation("com.google.maps.android:android-maps-utils:3.8.0")
 }

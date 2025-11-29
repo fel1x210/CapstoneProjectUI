@@ -20,6 +20,10 @@ import ca.gbc.comp3074.uiprototype.ui.search.SearchFragment;
 
 public class MainActivity extends AppCompatActivity {
 
+    public static final String EXTRA_NAVIGATE_LAT = "navigate_lat";
+    public static final String EXTRA_NAVIGATE_LNG = "navigate_lng";
+    public static final String EXTRA_NAVIGATE_NAME = "navigate_name";
+
     private BottomNavigationView bottomNavigationView;
 
     // Lazy initialize fragments to reduce memory usage and startup time
@@ -94,6 +98,9 @@ public class MainActivity extends AppCompatActivity {
 
         // Sync favorites from cloud on startup
         checkAuthAndSyncFavorites();
+
+        // Check for navigation intent on startup
+        handleNavigationIntent(getIntent());
     }
 
     private void checkAuthAndSyncFavorites() {
@@ -150,5 +157,28 @@ public class MainActivity extends AppCompatActivity {
 
     public void navigateToSearch() {
         bottomNavigationView.setSelectedItemId(R.id.navigation_search);
+    }
+
+    @Override
+    protected void onNewIntent(android.content.Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleNavigationIntent(intent);
+    }
+
+    private void handleNavigationIntent(android.content.Intent intent) {
+        if (intent.hasExtra(EXTRA_NAVIGATE_LAT) && intent.hasExtra(EXTRA_NAVIGATE_LNG)) {
+            double lat = intent.getDoubleExtra(EXTRA_NAVIGATE_LAT, 0);
+            double lng = intent.getDoubleExtra(EXTRA_NAVIGATE_LNG, 0);
+            String name = intent.getStringExtra(EXTRA_NAVIGATE_NAME);
+
+            // Switch to home tab
+            bottomNavigationView.setSelectedItemId(R.id.navigation_home);
+
+            // Pass navigation request to HomeFragment
+            if (homeFragment instanceof HomeFragment) {
+                ((HomeFragment) homeFragment).prepareNavigation(lat, lng, name);
+            }
+        }
     }
 }

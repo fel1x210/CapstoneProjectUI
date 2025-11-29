@@ -383,17 +383,10 @@ public class PlaceDetailsActivity extends AppCompatActivity {
         // Directions button
         directionsButton.setOnClickListener(v -> {
             if (details.geometry != null && details.geometry.location != null) {
-                String uri = String.format("geo:%f,%f?q=%f,%f(%s)",
-                        details.geometry.location.lat, details.geometry.location.lng,
-                        details.geometry.location.lat, details.geometry.location.lng,
-                        Uri.encode(details.name));
-                Intent mapIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
-                mapIntent.setPackage("com.google.android.apps.maps");
-                if (mapIntent.resolveActivity(getPackageManager()) != null) {
-                    startActivity(mapIntent);
-                } else {
-                    Toast.makeText(this, "Google Maps not installed", Toast.LENGTH_SHORT).show();
-                }
+                startInternalNavigation(
+                        details.geometry.location.lat,
+                        details.geometry.location.lng,
+                        details.name);
             }
         });
 
@@ -522,18 +515,20 @@ public class PlaceDetailsActivity extends AppCompatActivity {
         }
 
         directionsButton.setOnClickListener(v -> {
-            String uri = String.format("geo:%f,%f?q=%f,%f(%s)",
-                    place.latitude, place.longitude,
-                    place.latitude, place.longitude,
-                    Uri.encode(place.name));
-            Intent mapIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
-            mapIntent.setPackage("com.google.android.apps.maps");
-            if (mapIntent.resolveActivity(getPackageManager()) != null) {
-                startActivity(mapIntent);
-            } else {
-                Toast.makeText(this, "Google Maps not installed", Toast.LENGTH_SHORT).show();
-            }
+            startInternalNavigation(
+                    place.latitude,
+                    place.longitude,
+                    place.name);
         });
+    }
+
+    private void startInternalNavigation(double lat, double lng, String name) {
+        Intent intent = new Intent(this, ca.gbc.comp3074.uiprototype.ui.main.MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        intent.putExtra(ca.gbc.comp3074.uiprototype.ui.main.MainActivity.EXTRA_NAVIGATE_LAT, lat);
+        intent.putExtra(ca.gbc.comp3074.uiprototype.ui.main.MainActivity.EXTRA_NAVIGATE_LNG, lng);
+        intent.putExtra(ca.gbc.comp3074.uiprototype.ui.main.MainActivity.EXTRA_NAVIGATE_NAME, name);
+        startActivity(intent);
     }
 
     @Override
