@@ -1,6 +1,19 @@
 # Quiet Space - Community Feature Implementation
 
-## Date: October 23, 2025
+## 🔐 IMPORTANT: Security Setup Required
+
+**Before building the project, you MUST configure API keys:**
+
+1. Copy `local.properties.template` to `local.properties`
+2. Add your API keys (Google Places, Supabase)
+3. See [SECURITY_SETUP.md](SECURITY_SETUP.md) for detailed instructions
+
+**API keys are no longer hardcoded for security reasons.**
+
+---
+
+## Date: October 23, 2025  
+**Updated**: November 30, 2025 - API keys moved to BuildConfig (secure)
 
 ---
 

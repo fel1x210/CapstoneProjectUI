@@ -1,12 +1,14 @@
 package ca.gbc.comp3074.uiprototype.utils;
 
+import ca.gbc.comp3074.uiprototype.BuildConfig;
+
 /**
  * Configuration class for API keys and app settings
  */
 public class AppConfig {
     
-    // Google Places API Key - In production, this should be stored securely
-    public static final String GOOGLE_PLACES_API_KEY = "AIzaSyA5DMdPTgwaH2JjdzztOCS0aVUjPR3Layc";
+    // Google Places API Key - Loaded from local.properties via BuildConfig
+    public static final String GOOGLE_PLACES_API_KEY = BuildConfig.GOOGLE_PLACES_API_KEY;
     
     // Default locations
     public static final double DEFAULT_LATITUDE = 43.6532;  // Toronto

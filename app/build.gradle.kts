@@ -1,9 +1,24 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     id("com.android.application")
     kotlin("android")
     kotlin("plugin.serialization")
     kotlin("kapt") // Enable KAPT for Glide annotation processing
 }
+
+// Load API keys from local.properties
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.inputStream().use { localProperties.load(it) }
+}
+
+// Get API keys with fallback to empty string (will cause compile error if missing)
+val googlePlacesApiKey: String = localProperties.getProperty("GOOGLE_PLACES_API_KEY") ?: ""
+val supabaseUrl: String = localProperties.getProperty("SUPABASE_URL") ?: ""
+val supabaseAnonKey: String = localProperties.getProperty("SUPABASE_ANON_KEY") ?: ""
 
 android {
     namespace = "ca.gbc.comp3074.uiprototype"
@@ -21,6 +36,14 @@ android {
         // Performance optimizations for high refresh rate
         multiDexEnabled = true
         vectorDrawables.useSupportLibrary = true
+        
+        // Inject API keys into BuildConfig
+        buildConfigField("String", "GOOGLE_PLACES_API_KEY", "\"$googlePlacesApiKey\"")
+        buildConfigField("String", "SUPABASE_URL", "\"$supabaseUrl\"")
+        buildConfigField("String", "SUPABASE_ANON_KEY", "\"$supabaseAnonKey\"")
+        
+        // Inject Google Maps API key into AndroidManifest
+        manifestPlaceholders["GOOGLE_MAPS_API_KEY"] = googlePlacesApiKey
     }
 
     buildTypes {
@@ -55,6 +78,7 @@ android {
     // Enable view binding for better performance
     buildFeatures {
         viewBinding = true
+        buildConfig = true  // Enable BuildConfig generation for API keys
     }
     
     packaging {

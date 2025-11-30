@@ -99,10 +99,10 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <!-- Google Maps API -->
+        <!-- Google Maps API - Loaded from local.properties via BuildConfig -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyA5DMdPTgwaH2JjdzztOCS0aVUjPR3Layc" />
+            android:value="${GOOGLE_MAPS_API_KEY}" />
     </application>
 
 </manifest>

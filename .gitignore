@@ -1,15 +1,17 @@
 *.iml
 .gradle
 /local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
+
+# IDE files - Android Studio / IntelliJ IDEA
+/.idea/
 .DS_Store
 /build
 /captures
 .externalNativeBuild
 .cxx
+
+# IMPORTANT: Do NOT remove this - contains sensitive API keys
 local.properties
+
+# Keep the template in git
+!local.properties.template
