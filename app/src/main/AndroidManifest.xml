@@ -97,6 +97,7 @@
                 android:name=".ui.community.PostCommentsActivity"
                 android:exported="false"
                 android:theme="@style/Theme.UIPrototype.Translucent"
+                android:windowSoftInputMode="adjustResize"
                 android:parentActivityName=".ui.main.MainActivity" />
 
         <!-- File Provider for Camera -->

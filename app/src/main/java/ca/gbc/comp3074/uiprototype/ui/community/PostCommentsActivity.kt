@@ -55,7 +55,7 @@ class PostCommentsActivity : AppCompatActivity() {
         
         // Initialize views
         val touchOutside = findViewById<View>(R.id.touchOutside)
-        val sheetContainer = findViewById<androidx.coordinatorlayout.widget.CoordinatorLayout>(R.id.sheetContainer)
+        val sheetContainer = findViewById<View>(R.id.sheetContainer)
         toolbar = findViewById(R.id.toolbar)
         recyclerViewComments = findViewById(R.id.recyclerViewComments)
         emptyState = findViewById(R.id.emptyState)

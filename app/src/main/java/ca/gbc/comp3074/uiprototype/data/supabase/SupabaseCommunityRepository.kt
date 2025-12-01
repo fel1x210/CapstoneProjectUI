@@ -161,6 +161,27 @@ class SupabaseCommunityRepository(private val context: Context) {
                 false
             }
             
+            // Update likes count in community_posts
+            try {
+                val likesCount = client.postgrest["post_likes"]
+                    .select(Columns.raw("id")) {
+                        filter {
+                            eq("post_id", postId)
+                        }
+                    }
+                    .decodeList<PostLike>().size
+                
+                client.postgrest["community_posts"].update(
+                    mapOf("likes_count" to likesCount)
+                ) {
+                    filter {
+                        eq("id", postId)
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to update like count", e)
+            }
+            
             Log.d(TAG, "Like toggled: $isLiked for post $postId")
             Result.success(isLiked)
         } catch (e: Exception) {
@@ -201,6 +222,28 @@ class SupabaseCommunityRepository(private val context: Context) {
             
             client.postgrest["post_comments"].insert(newComment)
             
+            // Update comments count in community_posts
+            try {
+                val commentsCount = client.postgrest["post_comments"]
+                    .select(Columns.raw("id")) {
+                        filter {
+                            eq("post_id", postId)
+                        }
+                    }
+                    .decodeList<PostComment>().size
+                
+                client.postgrest["community_posts"].update(
+                    mapOf("comments_count" to commentsCount)
+                ) {
+                    filter {
+                        eq("id", postId)
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to update comment count", e)
+                // Don't fail the whole operation if just the count update fails
+            }
+            
             Log.d(TAG, "Comment added successfully to post $postId")
             Result.success(newComment)
         } catch (e: Exception) {
@@ -237,9 +280,9 @@ class SupabaseCommunityRepository(private val context: Context) {
      */
     suspend fun syncPostCounts(): Result<Unit> = withContext(Dispatchers.IO) {
         try {
-            // Get all posts
+            // Get all posts (just IDs and current counts to minimize data)
             val posts = client.postgrest["community_posts"]
-                .select(Columns.ALL)
+                .select(Columns.raw("id, comments_count, likes_count"))
                 .decodeList<CommunityPost>()
             
             Log.d(TAG, "Syncing counts for ${posts.size} posts...")
@@ -247,36 +290,33 @@ class SupabaseCommunityRepository(private val context: Context) {
             for (post in posts) {
                 try {
                     // Count actual comments
-                    val actualComments = client.postgrest["post_comments"]
-                        .select(Columns.ALL) {
+                    val actualCommentsCount = client.postgrest["post_comments"]
+                        .select(Columns.raw("id")) {
                             filter {
                                 eq("post_id", post.id)
                             }
-                        }
-                        .decodeList<PostComment>()
+                            count(io.github.jan.supabase.postgrest.query.Count.EXACT)
+                        }.countOrNull() ?: 0
                     
                     // Count actual likes
-                    val actualLikes = client.postgrest["post_likes"]
-                        .select(Columns.ALL) {
+                    val actualLikesCount = client.postgrest["post_likes"]
+                        .select(Columns.raw("id")) {
                             filter {
                                 eq("post_id", post.id)
                             }
-                        }
-                        .decodeList<PostLike>()
-                    
-                    val actualCommentsCount = actualComments.size
-                    val actualLikesCount = actualLikes.size
+                            count(io.github.jan.supabase.postgrest.query.Count.EXACT)
+                        }.countOrNull() ?: 0
                     
                     // Update if counts don't match
-                    if (post.commentsCount != actualCommentsCount || post.likesCount != actualLikesCount) {
+                    if (post.commentsCount != actualCommentsCount.toInt() || post.likesCount != actualLikesCount.toInt()) {
                         Log.d(TAG, "Syncing post ${post.id}: comments ${post.commentsCount} -> $actualCommentsCount, likes ${post.likesCount} -> $actualLikesCount")
                         
-                        val updatedPost = post.copy(
-                            commentsCount = actualCommentsCount,
-                            likesCount = actualLikesCount
-                        )
-                        
-                        client.postgrest["community_posts"].update(updatedPost) {
+                        client.postgrest["community_posts"].update(
+                            mapOf(
+                                "comments_count" to actualCommentsCount,
+                                "likes_count" to actualLikesCount
+                            )
+                        ) {
                             filter {
                                 eq("id", post.id)
                             }
