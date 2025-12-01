@@ -38,6 +38,7 @@ public class LoginActivity extends AppCompatActivity {
     private TextView textViewRegister;
     private LinearLayout buttonGoogle;
     private LinearLayout buttonApple;
+    // private LinearLayout buttonFacebook;
 
     private SupabaseAuthHelper authHelper;
     private boolean isLoggingIn = false;
@@ -54,6 +55,48 @@ public class LoginActivity extends AppCompatActivity {
         initViews();
         setupInteractions();
         animateEntrance();
+
+        // Check for deep link (OAuth callback)
+        handleDeepLink(getIntent());
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        handleDeepLink(intent);
+    }
+
+    private void handleDeepLink(Intent intent) {
+        /*
+         * if (intent != null && intent.getData() != null &&
+         * "quietspace".equals(intent.getData().getScheme())) {
+         * authHelper.handleDeepLink(intent, new SupabaseAuthHelper.SimpleCallback() {
+         * 
+         * @Override
+         * public void onSuccess() {
+         * // Fetch profile and proceed
+         * authHelper.getCurrentUserProfile(new SupabaseAuthHelper.AuthCallback() {
+         * 
+         * @Override
+         * public void onSuccess(UserProfile profile) {
+         * showSuccessDialog(profile);
+         * }
+         * 
+         * @Override
+         * public void onError(String error) {
+         * // Even if profile fetch fails, we are logged in
+         * showSuccessDialog(null);
+         * }
+         * });
+         * }
+         * 
+         * @Override
+         * public void onError(String error) {
+         * showAlert("Authentication failed: " + error);
+         * }
+         * });
+         * }
+         */
     }
 
     private void initViews() {
@@ -67,6 +110,7 @@ public class LoginActivity extends AppCompatActivity {
         textViewRegister = findViewById(R.id.textViewRegister);
         buttonGoogle = findViewById(R.id.buttonGoogle);
         buttonApple = findViewById(R.id.buttonApple);
+        // buttonFacebook = findViewById(R.id.buttonFacebook);
     }
 
     private void setupInteractions() {
@@ -97,8 +141,29 @@ public class LoginActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        buttonGoogle.setOnClickListener(v -> showInfoDialog(getString(R.string.social_google)));
-        buttonApple.setOnClickListener(v -> showInfoDialog(getString(R.string.social_apple)));
+        buttonGoogle.setOnClickListener(v -> performSocialLogin("google"));
+        buttonApple.setOnClickListener(v -> performSocialLogin("apple"));
+        // buttonFacebook.setOnClickListener(v -> performSocialLogin("facebook"));
+    }
+
+    private void performSocialLogin(String provider) {
+        /*
+         * authHelper.signInWithProvider(provider, new
+         * SupabaseAuthHelper.SimpleCallback() {
+         * 
+         * @Override
+         * public void onSuccess() {
+         * // The browser will open, so we don't need to do anything here immediately.
+         * // The callback will be handled via deep link.
+         * }
+         * 
+         * @Override
+         * public void onError(String error) {
+         * showAlert("Login with " + provider + " failed: " + error);
+         * }
+         * });
+         */
+        showInfoDialog(provider);
     }
 
     private void performLogin(String email, String password) {
@@ -228,7 +293,7 @@ public class LoginActivity extends AppCompatActivity {
         // Use smooth custom transition
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
-    
+
     @Override
     public void finish() {
         super.finish();
