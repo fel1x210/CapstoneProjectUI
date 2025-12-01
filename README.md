@@ -186,9 +186,9 @@ app/src/main/java/ca/gbc/comp3074/uiprototype/
 
 ---
 
-## 📅 Recent Updates (Oct 2025)
+## 📅 Recent Updates (Nov 2025)
 
--   **Community Feed:** Full implementation of social features including photo sharing, likes, and comments.
+-   **Community Feed:** Full implementation of social features, including photo sharing, likes, and comments.
 -   **Performance Overhaul:**
     -   App startup time reduced by 60-70%.
     -   Memory usage reduced by 50%.
