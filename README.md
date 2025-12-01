@@ -1,3 +1,16 @@
+# Quiet Space
+
+**Quiet Space** is an Android application designed to help users discover and share peaceful locations ideal for studying, working, or simply relaxing. It features a community-driven platform where users can post photos, write reviews, and rate places based on their atmosphere and environment.
+
+## Key Features
+- **Community Feed**: Share photos and reviews of quiet spots.
+- **Interactive Reviews**: 5-star rating system for food, drink, atmosphere, and environment.
+- **Favorites**: Save and organize your favorite locations.
+- **Search**: Find places that match your quiet criteria.
+- **Modern UI**: Built with Material Design 3 for a clean, calming experience.
+
+---
+
 # Quiet Space - Community Feature Implementation
 
 ## Date: October 23, 2025
@@ -6,75 +19,43 @@
 
 ## 🎯 Overview
 
-Today, we successfully implemented a complete **Instagram-style Community Feed** feature for the Quiet Space app, allowing users to share photos of places (food, drinks, atmosphere, environment) with likes, comments, and 5-star ratings. We also applied comprehensive **performance optimizations** across the entire application.
+Today, we successfully implemented a complete **Community Feed** feature for the Quiet Space app, allowing users to share photos of places (food, drinks, atmosphere, environment) with likes, comments, and 5-star ratings. We also applied comprehensive **performance optimizations** across the entire application.
 
 ---
 
-## ✅ What We Built Today
+# CapstoneProjectUI
 
-### 1. Community Social Feed Feature
+CapstoneProjectUI is an Android application project used for a capstone. It contains the Android `app/` module, Gradle build files, and supporting SQL assets for Supabase.
 
-A fully functional social media feed integrated with Supabase backend:
+## Quick Start
 
-#### **Core Features:**
-- 📸 **Create Posts**: Upload photos from gallery or camera with place name, caption, and category
-- ❤️ **Like System**: Toggle likes on posts with visual feedback
-- 💬 **Comments & Reviews**: Add comments with 5-star ratings (0-5 stars, 0.5 increments)
-- 🔄 **Swipe to Refresh**: Pull down to reload posts
-- 📱 **Bottom Navigation**: New Community tab between Search and Favorites
-- 🎨 **Material Design 3**: Beautiful UI with quiet_space color scheme
+- Build (macOS / zsh):
 
-#### **Categories:**
-- 🍕 Food
-- ☕ Drink
-- ✨ Atmosphere
-- 🌿 Environment
+```bash
+./gradlew clean assembleDebug
+```
 
----
+- Run unit tests:
 
-## 📂 Files Created
+```bash
+./gradlew test
+```
 
-### **Data Models** (Kotlin)
-- `CommunityPost.kt` - Post data model with Supabase serialization
-- `PostComment.kt` - Comment with rating (0-5 stars)
-- `PostLike.kt` - Like tracking model
+## Repository Layout
 
-### **Repository** (Kotlin)
-- `SupabaseCommunityRepository.kt` (337 lines)
-  - `getPosts()` - Fetch all posts with user's like status
-  - `createPost()` - Upload image & create post
-  - `toggleLike()` - Add/remove likes
-  - `addComment()` - Create comment with rating
-  - `getComments()` - Fetch post comments
-  - `deletePost()` - Delete post with cascade
+- `app/` — Android application module (source, resources, manifests)
+- Root Gradle files — project configuration
+- Supabase SQL files (kept in repo root)
 
-### **UI Components** (Kotlin)
-- `CommunityFragment.kt` (226 lines)
-  - SwipeRefreshLayout
-  - RecyclerView with empty state
-  - FAB for creating posts
-  - Like/comment/options dialogs
+## Notes
 
-- `CreatePostActivity.kt` (269 lines)
-  - Image picker (gallery + camera)
-  - Permission handling (Android 13+ photo picker)
-  - Category selection with ChipGroup
-  - Place name & caption inputs
+- Per your request, previous Markdown guide files were removed and consolidated into this single README.
+- If you want the separate guides restored (`PERFORMANCE_GUIDE`, `PROJECT_COMPLETE_GUIDE`, or `SUPABASE_SETUP_GUIDE`), I can recreate them.
 
-- `PostCommentsActivity.kt` (180+ lines)
-  - Comments list
-  - RatingBar for 5-star reviews
-  - Add comment with rating
+## Contact
 
-### **Adapters** (Kotlin)
-- `CommunityPostAdapter.kt` - Post feed with DiffUtil
-- `CommentsAdapter.kt` - Comments list
+If you need further edits to this README or want separate documentation files recreated, tell me what to include and I will add them.
 
-### **Layouts** (XML)
-- `fragment_community.xml` - Main feed layout
-- `item_community_post.xml` - Post card design
-- `activity_create_post.xml` - Create post form
-- `activity_post_comments.xml` - Comments view
 - `item_comment.xml` - Comment card
 
 ### **Drawables** (Vector XML)
